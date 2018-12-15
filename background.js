@@ -3,8 +3,9 @@
   var addToUrl = '/api/v1/entries.json?count=';
   var defaultUrgentLowValue = 55;
   var defaultLowValue = 80;
-  var defaultHighValue = 180;
+  var defaultHighValue = 180; 
   var defaultUrgentHighValue = 260;
+  var snoozeMinutes = 30;
 
   var urgentLowValue;
   var lowValue;
@@ -29,6 +30,9 @@
     });
     chrome.storage.local.set({lastAlarmName: "dne"}, function() {
       console.log('Last Alarm Variable created!');
+    });
+    chrome.storage.local.set({snoozeUnix: "dne"}, function() {
+      //snoozeunix is an amazing variable name and you can't convince me otherwise
     });
   });
 //get data from nightscout!
@@ -71,62 +75,109 @@ function notificationFunction(bgValue,dateValue,valueText){
   chrome.storage.local.get(['lastAlarmName'], function(lastAlarmRaw) {
     var lastAlarmString = Object.values(lastAlarmRaw)[0];
     //audioNotification()
-    if(dateValue.toString() != lastAlarmString){
-      console.log("YEET");
-      console.log(dateValue.toString())
-      console.log(lastAlarmString);
-      //indeed a new data point!
-      if(valueText == "High"){
-        if(highValue[1] == true){
-          //is high and notifs are enabled.
-          if(bgValue>=urgentHighValue[0]){
-            //is an urgent high. adjust accordingly, check notification permissions.
-            if(urgentHighValue[1]==false){
-              valueText=""
-            }else{
-              valueText="Urgent High"
-            }
-          }
-        }else{
-          valueText=""
+    //now, see if it's snoozed.
+    chrome.storage.local.get(['snoozeUnix'], function(snoozeUnixRaw) {
+      var snoozeUnixString = Object.values(snoozeUnixRaw)[0];
+      //now we can see if the snooze has been within x (default 30?? minutes)
+      var snoozeVal;
+      if (snoozeUnixString != "dne"){
+        var snoozeUnixTemp = Math.round((new Date()).getTime() / 1000);
+        //compare
+        var snoozeDiff = -(Number(snoozeUnixString)-Number(snoozeUnixTemp)); //yes i double negated this. got a problem with it?
+        console.log("SNOOZED FOR "+(snoozeMinutes - (snoozeDiff/60)).toString()+" MORE MINUTES!");
+        if (snoozeDiff>snoozeMinutes * 60){
+          //reset difference
+          snoozeVal = false;
+          stopSnooze();
         }
-      }else if(valueText == "Low"){
-        if(lowValue[1] == true){
-          //is low and notifs are enabled.
-          if(bgValue<=urgentLowValue[0]){
-            //is an urgent low. adjust accordingly, check notification permissions.
-            if(urgentLowValue[1]==false){
-              valueText=""
-            }else{
-              valueText="Urgent Low"
-            }
-          }
-        }else{
-          valueText=""
-        }
-      }
-      var notifID = 'nightscout-alert';
-      //double check that notifs were indeed enabled.
-      if(valueText==""){
-        //notifications are disabled. whoops.
-        clearNotifications(notifID);
+        //console.log("SNOOZE DIFFERENCE IS "+snoozeDiff);
       }else{
-          chrome.notifications.create(
-            notifID,{  
-            type: 'basic', 
-            iconUrl: 'images/nightscout128.png', 
-            title: valueText+" Glucose Alert", 
-            message: "Your blood sugar is "+bgValue,  
-            priority: 1
-            },
-          function(){
-            setTimeout(clearNotifications,10000);
-          });
+        //no alarm - set to dne
+        snoozeVal = false;
       }
-    }else{
-      //don't clear - we still want the notification visible from last time!
-      console.log("sorry man, notification hasn't changed...")
-    }
+      if (snoozeVal == false){
+        if(dateValue.toString() != lastAlarmString){
+          //now double check that it hasn't been snoozed recently
+          console.log(dateValue.toString())
+          console.log(lastAlarmString);
+          //indeed a new data point!
+          if(valueText == "High"){
+            if(highValue[1] == true){
+              //is high and notifs are enabled.
+              if(bgValue>=urgentHighValue[0]){
+                //is an urgent high. adjust accordingly, check notification permissions.
+                if(urgentHighValue[1]==false){
+                  valueText=""
+                }else{
+                  valueText="Urgent High"
+                }
+              }
+            }else{
+              valueText=""
+            }
+          }else if(valueText == "Low"){
+            if(lowValue[1] == true){
+              //is low and notifs are enabled.
+              if(bgValue<=urgentLowValue[0]){
+                //is an urgent low. adjust accordingly, check notification permissions.
+                if(urgentLowValue[1]==false){
+                  valueText=""
+                }else{
+                  valueText="Urgent Low"
+                }
+              }
+            }else{
+              valueText=""
+            }
+          }
+          var notifID = 'nightscout-alert';
+          //double check that notifs were indeed enabled.
+          if(valueText==""){
+            //notifications are disabled. whoops.
+            clearNotifications(notifID);
+          }else{
+              chrome.notifications.create(
+                notifID,{  
+                type: 'basic', 
+                iconUrl: 'images/nightscout128.png', 
+                title: valueText+" Glucose Alert", 
+                message: "Your blood sugar is "+bgValue,  
+                priority: 1,
+                buttons:[{
+                  title:"Dismiss",
+                  },
+                  {title:"Snooze ("+snoozeMinutes+"m)"}]
+                },
+              function(){
+                setTimeout(clearNotifications,10000);
+              });
+          }
+        }else{
+          //don't clear - we still want the notification visible from last time!
+          console.log("sorry man, notification hasn't changed...")
+        }
+      }
+    });
+  });
+}
+
+chrome.notifications.onButtonClicked.addListener(function(notifId, btnIdx) {
+  if(btnIdx==0){
+    clearNotifications();
+    //alert("YEET");
+  }else if(btnIdx==1){
+      var snoozeUnixTemp = Math.round((new Date()).getTime() / 1000);
+        chrome.storage.local.set({snoozeUnix: snoozeUnixTemp}, function() {
+          console.log("SNOOZED! SEND SNOOZE NOTIF~!");
+        });
+    //alert("SNOOZE");
+    //make a snooze thing!
+  }
+}); 
+
+function stopSnooze(){
+  chrome.storage.local.set({snoozeUnix: "dne"}, function() {
+    console.log("ALARM DATA HAS BEEN RESET!");
   });
 }
 
