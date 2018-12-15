@@ -1,44 +1,41 @@
-<!DOCTYPE html>
-<html>
-
-<head>
-	<link rel="stylesheet" href="settings.css">
-</head>
-
-<body>
-	<div class="background">
-		<div class="header">
-			<img src="/../images/nightscout128.png" class="nightscoutLogo">
-			</img>
-			<button class="backButton" id="backButton">
-				<img src="/../arrows/back.png" class="backArrow"></img>
-			</button>
-			<p class="settingsHeader">Settings</p>
-		</div>
-		<div class="mainContainer">
-			<div class="backgroundBlack"></div>
-			<p class="siteUrlText">Nightscout Site URL:</p>
-			<textarea name="siteURL" class="siteURL" id="siteURL" rows="1" cols="20" placeholder="http://test.herokuapp.com/"></textarea>
-			<p class="enabledText" id="urgentLowEnab">Enabled:</p>
-			<p class="enabledText" id="lowEnab">Enabled:</p>
-			<p class="enabledText" id="urgentHighEnab">Enabled:</p>
-			<p class="enabledText" id="highEnab">Enabled:</p>
-			<input type="checkbox" name="urgentLowEnabled" class="enabledBox" id="urgentLowEnabled"><br>
-			<input type="checkbox" name="lowEnabled" class="enabledBox" id="lowEnabled"><br>
-			<input type="checkbox" name="urgentHighEnabled" class="enabledBox" id="urgentHighEnabled"><br>
-			<input type="checkbox" name="highEnabled" class="enabledBox" id="highEnabled"><br>
-			<textarea name="urgentLowAlertValue" rows="1" cols="5" placeholder="40" id="urgentLowAlertValue" class="alertValue"></textarea>
-			<textarea name="lowAlertValue" rows="1" cols="5" placeholder="70" id="lowAlertValue" class="alertValue"></textarea>
-			<textarea name="urgentHighAlertValue" rows="1" cols="5" placeholder="400" id="urgentHighAlertValue" class="alertValue"></textarea>
-			<textarea name="highAlertValue" rows="1" cols="5" placeholder="250" id="highAlertValue" class="alertValue"></textarea>
-			<p class="alertText" id="urgentLowAlertText">Urgent Low Alert Value:</p>
-			<p class="alertText" id="lowAlertText">Low Alert Value:</p>
-			<p class="alertText" id="urgentHighAlertText">Urgent High Alert Value:</p>
-			<p class="alertText" id="highAlertText">High Alert Value:</p>
-			<button class="submitButton">Save</button>
-		</div>
-	</div>
-	<script src="settings.js"></script>
-</body>
-
-</html>
+  <!DOCTYPE html>
+  <html>
+	  <head>
+	  <link rel="stylesheet" href="settings.css">
+	  </head>
+	  <body>
+		  <div class="background">
+		  	<div class="header">		  	
+		  		<img src="/../images/nightscout128.png" class="nightscoutLogo">
+		  		</img>
+		  		<button class="backButton" id = "backButton">
+		  		<img src="/../arrows/back.png" class="backArrow"></img>
+		  		</button>
+		  		<p class="settingsHeader">Settings</p>
+			</div>
+			<div class="mainContainer">
+				<div class="backgroundBlack"></div>
+				<p class="siteUrlText">Nightscout Site URL:</p>
+				<textarea name="siteURL" class="siteURL" id="siteURL" rows="1" cols="20" placeholder="http://test.herokuapp.com/"></textarea>
+				<p class="enabledText" id="urgentLowEnab">Enabled:</p>
+				<p class="enabledText" id="lowEnab">Enabled:</p>
+				<p class="enabledText" id="urgentHighEnab">Enabled:</p>
+				<p class="enabledText" id="highEnab">Enabled:</p>
+				<input type="checkbox" name="urgentLowEnabled" class="enabledBox" id="urgentLowEnabled"><br>
+				<input type="checkbox" name="lowEnabled" class="enabledBox" id="lowEnabled"><br>
+				<input type="checkbox" name="urgentHighEnabled" class="enabledBox" id="urgentHighEnabled"><br>
+				<input type="checkbox" name="highEnabled" class="enabledBox" id="highEnabled"><br>
+				<textarea name="urgentLowAlertValue" rows="1" cols="5" placeholder="40" id="urgentLowAlertValue" class="alertValue"></textarea>
+				<textarea name="lowAlertValue" rows="1" cols="5" placeholder="70" id="lowAlertValue" class="alertValue"></textarea>
+				<textarea name="urgentHighAlertValue" rows="1" cols="5" placeholder="400" id="urgentHighAlertValue" class="alertValue"></textarea>
+				<textarea name="highAlertValue" rows="1" cols="5" placeholder="250" id="highAlertValue" class="alertValue"></textarea>
+				<p class="alertText" id="urgentLowAlertText">Urgent Low Alert Value:</p>
+				<p class="alertText" id="lowAlertText">Low Alert Value:</p>
+				<p class="alertText" id="urgentHighAlertText">Urgent High Alert Value:</p>
+				<p class="alertText" id="highAlertText">High Alert Value:</p>
+				<button class="submitButton">Save</button>
+			</div>
+		  </div>
+		<script src="settings.js"></script>
+	  </body>
+  </html>
