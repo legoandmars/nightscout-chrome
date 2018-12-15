@@ -1,0 +1,184 @@
+.background{
+	background-color:black;
+	width:300px;
+	height:370px;
+}
+body {
+  background-color: #000000;
+}
+.nightscoutLogo{
+	height:75px;
+	width:75px;
+	position:absolute;
+	top:15px;
+	left:30px;
+
+}
+.header{
+	width:100%;
+	height:90px;
+}
+.settingsHeader{
+	font-family: 'Ubuntu', Verdana, Helvetica, Arial, sans-serif;
+	font-size:40px;
+	color:white;
+	position:absolute;
+	top:-10px;
+	left:100px;
+}
+.backButton{
+	background-color:black;
+	border: none;
+	width:32px;
+	height:32px;
+}
+.backArrow{
+	width:32px;
+	height:32px;
+	position:absolute;
+	left:8px;
+	top:8px;
+}
+.mainContainer{
+	width:102%;
+	position:absolute;
+	left:-8px;
+	height:320px;
+	background-color:#111111;
+}
+.siteUrlText{
+	font-family: 'Ubuntu', Verdana, Helvetica, Arial, sans-serif;
+	color:gray;
+	position:absolute;
+	left:20px;
+	font-size:15px;
+	top:-10px;
+}
+
+.alertValue{
+	width:50px;
+	text-align: center;
+	left:92px;
+}
+#urgentLowAlertValue{
+	top:80px;
+}
+#lowAlertValue{
+	top:125px;
+}
+#highAlertValue{
+	top:170px;
+}
+#urgentHighAlertValue{
+	top:215px;
+}
+
+.alertText{
+	font-family: 'Ubuntu', Verdana, Helvetica, Arial, sans-serif;
+	color:gray;
+	position:absolute;
+	font-size:15px;
+	width:100%;
+	top:90px;
+	text-align: center;
+	display: inline-block;
+}
+#urgentLowAlertText{
+	top:44px;
+}
+#lowAlertText{
+	top:88px;
+}
+#highAlertText{
+	top:134px;
+}
+#urgentHighAlertText{
+	top:179px;
+}
+
+.enabledText{
+	font-family: 'Ubuntu', Verdana, Helvetica, Arial, sans-serif;
+	color:gray;
+	position:absolute;
+	left:150px;
+	font-size:15px;
+	top:67px;
+}
+
+#urgentLowEnab{
+	top:67px;
+}
+#lowEnab{
+	top:112px;
+}
+#highEnab{
+	top:157px;
+}
+#urgentHighEnab{
+	top:202px;
+}
+
+.enabledBox{
+	position:absolute;
+	left:215px;
+}
+
+#urgentLowEnabled
+{
+	top:83px;
+}
+#lowEnabled
+{
+	top:128px;
+}
+#highEnabled
+{
+	top:173px;
+}
+#urgentHighEnabled
+{
+	top:218px;
+}
+textarea {
+    white-space: nowrap;
+    overflow:    hidden;
+    overflow-y:  hidden;
+    overflow-x:  hidden;
+    resize:none;
+    background-color:black;
+    font-family: 'Ubuntu', Verdana, Helvetica, Arial, sans-serif;
+    overflow:    -moz-scrollbars-horizontal;
+    position:absolute;
+    width:250px;
+    left:20px;
+    top:30px;
+    border-radius:5px;
+    border-width:1.5px;
+    border-color:grey;
+    color:white;
+}
+.backgroundBlack{
+	border-radius:8px;
+	background-color:#090909;
+	height:190px;
+	width:93%;
+	position:absolute;
+	left:15px;
+	top:55px;
+}
+
+.submitButton{
+	width:60px;
+	height:30px;
+	position: relative;
+	top:185px;
+	display: block;
+	background-color:black;
+	border-radius:8px;
+	margin: 0 auto;
+	font-family: 'Ubuntu', Verdana, Helvetica, Arial, sans-serif;
+	color:white;
+	text-align:center;
+	font-size:18px; 
+	border-color:grey;
+}
