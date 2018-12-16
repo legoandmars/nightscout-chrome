@@ -12,32 +12,46 @@
   var urgentHighValue;
   var refreshGraphFunc;
 
+  function firstInstallFunction(bytes){
+    console.log(bytes+" BYTES IN USE");
+    if(bytes == 0){
+      //since there's no data, NOW we can do this.
+      chrome.storage.local.set({siteUrl:defaultSite}, function() {
+        console.log('The default site has been set as '+defaultSite);
+      });
+      chrome.storage.local.set({bsTable: "dne"}, function() {
+        console.log('BS values have been set to dne (default)');
+      });
+      chrome.storage.local.set({dataAmount: 7}, function() {
+        console.log('Amount of data has been set to 7 (30 minutes) (default) ');
+      });
+      //{ {number,enabled(t/f, t by default) } }
+      //goes in order of: urgent low, low, high, urgent high.
+      chrome.storage.local.set({alarmValues: [ [defaultUrgentLowValue, true],[defaultLowValue, true],[defaultHighValue, true],[defaultUrgentHighValue, true] ]}, function() {
+        console.log('Amount of data has been set to 7 (30 minutes) (default) ');
+      });
+      chrome.storage.local.set({lastAlarmName: "dne"}, function() {
+        console.log('Last Alarm Variable created!');
+      });
+      chrome.storage.local.set({snoozeUnix: "dne"}, function() {
+        //snoozeunix is an amazing variable name and you can't convince me otherwise
+      });
+      chrome.storage.local.set({snoozeMinutes: snoozeMinutesDefault}, function() {
+      });
+      chrome.storage.local.set({unitValue: "mgdl"}, function() {
+      });
+    }
+  }
+
+  function getLocalBytes(settings) {
+      var keys = Object.keys(settings);
+      chrome.storage.local.getBytesInUse(keys, firstInstallFunction);
+  }
+
+
   chrome.runtime.onInstalled.addListener(function() {
     //note: please clean this code up >_>
-    chrome.storage.local.set({siteUrl:defaultSite}, function() {
-      console.log('The default site has been set as '+defaultSite);
-    });
-    chrome.storage.local.set({bsTable: "dne"}, function() {
-      console.log('BS values have been set to dne (default)');
-    });
-    chrome.storage.local.set({dataAmount: 7}, function() {
-      console.log('Amount of data has been set to 7 (30 minutes) (default) ');
-    });
-    //{ {number,enabled(t/f, t by default) } }
-    //goes in order of: urgent low, low, high, urgent high.
-    chrome.storage.local.set({alarmValues: [ [defaultUrgentLowValue, true],[defaultLowValue, true],[defaultHighValue, true],[defaultUrgentHighValue, true] ]}, function() {
-      console.log('Amount of data has been set to 7 (30 minutes) (default) ');
-    });
-    chrome.storage.local.set({lastAlarmName: "dne"}, function() {
-      console.log('Last Alarm Variable created!');
-    });
-    chrome.storage.local.set({snoozeUnix: "dne"}, function() {
-      //snoozeunix is an amazing variable name and you can't convince me otherwise
-    });
-    chrome.storage.local.set({snoozeMinutes: snoozeMinutesDefault}, function() {
-    });
-    chrome.storage.local.set({unitValue: "mgdl"}, function() {
-    });
+    chrome.storage.local.get(["siteUrl","bsTable","dataAmount","alarmValues","lastAlarmName","snoozeUnix","snoozeMinutes","unitValue"], getLocalBytes);
   });
 //get data from nightscout!
 //https://test.herokuapp.com/api/v1/entries <- link stuff
@@ -212,6 +226,7 @@ function checkBSvariables(callbackFunc){
   chrome.storage.local.get(['alarmValues'], function(result) {
     var alarmValues = Object.values(result)
     console.log(alarmValues);
+    console.log("ARE ALARM VALUES");
     if(alarmValues){
       var urgentLowData = alarmValues[0][0];
       var lowData = alarmValues[0][1];
@@ -234,12 +249,6 @@ function checkBSvariables(callbackFunc){
   });
 }
 
-function changeIconNumber(currentBG){
-  console.log(currentBG);
-  chrome.browserAction.setBadgeText({text: currentBG.toString()});
-  chrome.browserAction.setBadgeBackgroundColor({color:"gray"})
-  chrome.browserAction.setTitle({title:"Blood Glucose Level: "+currentBG.toString()})
-}
 
 function clearNotifications(lastAlarmRaw){
   chrome.notifications.clear("nightscout-alert",function(){
@@ -302,6 +311,9 @@ function bsColors(bgValue,unitType){
     customColor = "#c6a400";
   }
   chrome.browserAction.setBadgeBackgroundColor({color:customColor});
+  chrome.browserAction.setBadgeText({text: bgValue.toString()});
+  //chrome.browserAction.setBadgeBackgroundColor({color:"gray"})
+  chrome.browserAction.setTitle({title:"Blood Glucose Level: "+bgValue.toString()});
 }
 function saveFunc(responseData,callbackFunc){
   console.log("SAVE FUNC ENABLED!");
@@ -328,10 +340,12 @@ function saveFunc(responseData,callbackFunc){
             var tempTabl = returnCurrentBG(tempTest,true,true,unitType);
             tempBG = tempTabl[0];
             if(tempBG != false){
+              checkBSvariables(function(){
             //bsAlerts(tempBG,tempDate,true);
             //change bg vals.
-              console.log("CURRENT IS "+tempBG);
-              bsColors(tempBG,unitType);
+                console.log("CURRENT IS "+tempBG);
+                bsColors(tempBG,unitType);
+              });
             }
             console.log("It's fine - data is already correct.")
             //still, double check!
@@ -354,7 +368,6 @@ function saveFunc(responseData,callbackFunc){
                 //currentBG = 70;
                 console.log(currentBG);
                 //set icon
-                changeIconNumber(currentBG);
                 //note: add custom alert vars.
                 chrome.storage.local.get(['bsTable'], function(result) {
                 //not only does this control low/high alerts, but also the colors of the program.
