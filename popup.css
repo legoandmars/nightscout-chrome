@@ -269,7 +269,7 @@ body {
 
 .mouseOverDiv {
 	font-family: 'Ubuntu', Verdana, Helvetica, Arial, sans-serif;
-	width: 53px;
+	width: 60px;
 	height: 40px;
 	background-color: gray;
 	z-index: 8;
