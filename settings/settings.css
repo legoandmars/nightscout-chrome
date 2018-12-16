@@ -58,19 +58,8 @@ body {
 .alertValue{
 	width:50px;
 	text-align: center;
-	left:92px;
-}
-#urgentLowAlertValue{
-	top:80px;
-}
-#lowAlertValue{
-	top:125px;
-}
-#highAlertValue{
-	top:170px;
-}
-#urgentHighAlertValue{
-	top:215px;
+	top:1px;
+	left:0px;
 }
 
 .alertText{
@@ -79,66 +68,26 @@ body {
 	position:absolute;
 	font-size:15px;
 	width:100%;
-	top:90px;
+	top:-15px;
 	text-align: center;
 	display: inline-block;
-}
-#urgentLowAlertText{
-	top:44px;
-}
-#lowAlertText{
-	top:88px;
-}
-#highAlertText{
-	top:134px;
-}
-#urgentHighAlertText{
-	top:179px;
 }
 
 .enabledText{
 	font-family: 'Ubuntu', Verdana, Helvetica, Arial, sans-serif;
 	color:gray;
 	position:absolute;
-	left:150px;
+	left:60px;
 	font-size:15px;
-	top:67px;
+	top:-12px;
 }
-
-#urgentLowEnab{
-	top:67px;
-}
-#lowEnab{
-	top:112px;
-}
-#highEnab{
-	top:157px;
-}
-#urgentHighEnab{
-	top:202px;
-}
-
 .enabledBox{
 	position:absolute;
-	left:215px;
+	left:125px;
+	top:4px;
 }
 
-#urgentLowEnabled
-{
-	top:83px;
-}
-#lowEnabled
-{
-	top:128px;
-}
-#highEnabled
-{
-	top:173px;
-}
-#urgentHighEnabled
-{
-	top:218px;
-}
+
 textarea {
     white-space: nowrap;
     overflow:    hidden;
@@ -166,19 +115,51 @@ textarea {
 	left:15px;
 	top:55px;
 }
-
+.innerContainer{
+width: 100%;
+height: 100%;
+position: relative;
+overflow-y: auto;
+}
 .submitButton{
 	width:60px;
 	height:30px;
 	position: relative;
-	top:185px;
+	top:5px;
 	display: block;
 	background-color:black;
 	border-radius:8px;
-	margin: 0 auto;
+	margin: auto;
 	font-family: 'Ubuntu', Verdana, Helvetica, Arial, sans-serif;
 	color:white;
 	text-align:center;
 	font-size:18px; 
 	border-color:grey;
+}
+
+.backgroundContainer{
+	z-index: 99;
+	position: relative;
+	width: 100%;
+	height:45px;
+}
+.innerBackground{
+	width:48%;
+	height: 25px;
+	top:19px;
+	position: relative;
+	display: block;
+	margin:auto;
+}
+.bottomDiv{
+	width: 100%;
+	height: 45px;
+	position: absolute;
+	top:245px;
+}
+#alarmSnoozeLength{
+	left: 8px;
+}
+#alarmMinuteText{
+	left:68px;
 }

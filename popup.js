@@ -122,15 +122,29 @@ function convertDateFinal(dateObject){
 	});
 }
 
+function mgdlToMMOL(mgdlVal){
+  var mmolMult = 18.016;
+  var tempMmol = mgdlVal/mmolMult;
+  //make sure to round to one decimal place!
+  var tempMmolFinal = Math.round(tempMmol*10)/10;
+  if(tempMmolFinal % 1 == 0){
+    tempMmolFinal = tempMmolFinal+".0";
+  }
+  return (tempMmolFinal);
+}
+
 function parseData(response){
 	//make sure to double check alarm values first of all!
   if(response != "dne"){
-  	  document.getElementsByClassName("errorText")[0].innerHTML = ""
-  	//make sure to delete all previous dots.
-	  var parsed = JSON.parse(response);
-	  console.log("LENGTH IS "+parsed.length);
-	  console.log("PARSING DATA NOW!");
-	  for(i = 0; i < parsed.length; i++){
+  	//there is a response. now get unit type.
+  	chrome.storage.local.get(['unitValue'], function(unitResult) {
+  		var unitType = Object.values(unitResult)[0];
+  	    document.getElementsByClassName("errorText")[0].innerHTML = ""
+  		//make sure to delete all previous dots.
+	  	var parsed = JSON.parse(response);
+	  	console.log("LENGTH IS "+parsed.length);
+	  	console.log("PARSING DATA NOW!");
+		for(i = 0; i < parsed.length; i++){
 	    var firstValue = false;
 	    if (i==0){
 	      firstValue = true;
@@ -141,6 +155,12 @@ function parseData(response){
 	    var date = indivString["date"];
 	    var dateString = indivString["dateString"];
 	    var sgv = indivString["sgv"];
+	    //now we need to do mmol stuff. is it mmol? if so, convert!
+	    var sgvMgdl = sgv;
+	    if(unitType == "mmol"){
+	    	sgv = mgdlToMMOL(sgv);
+	    	//also, change delta to mmol!
+	    }
 	    var bloodSugar = sgv; //just for the purpose of making variable names easier to understand
 	    var delta = indivString["delta"];
 	    //DOUBLE CHECK DELTA
@@ -169,8 +189,12 @@ function parseData(response){
 		    	var indivString2 = parsed[i+1];
 		    	if(indivString2){
 		    		var newDeltaCalc1 = indivString2["sgv"];
+		    		//again, do some mmol stuff.
+		    		if(unitType == "mmol"){
+	    				newDeltaCalc1 = mgdlToMMOL(newDeltaCalc1);
+	    			}
 		    		if(newDeltaCalc1){
-		    			console.log("YEEEEET");
+		    			//console.log("YEEEEET");
 		    			delta = (Number(sgv)-Number(newDeltaCalc1)).toString();
 		    		}
 		    	}else{
@@ -181,7 +205,7 @@ function parseData(response){
 		   	var newDot = document.createElement("div");
 		   	newDot.className = "dot";
 		   	document.getElementsByClassName("innerChart")[0].appendChild(newDot);
-		    newDot.style.top = 154-(((sgv-40)/40)*16.666)+"px";
+		    newDot.style.top = 154-(((sgvMgdl-40)/40)*16.666)+"px";
 		    newDot.style.left = 258-(i*(243/(parsed.length-1)))+"px";
 		    //dotMOEvent(newDot,bloodSugar,dateString);
 		    //define vars for following functions
@@ -225,10 +249,18 @@ function parseData(response){
 			    var mainTextHolder = document.getElementsByClassName("mainTextHolder");
 				mainText[0].innerHTML=bloodSugar;
 				var arrowStr = "";
-				if(bloodSugar<=lowValue[0]){
+				var lowValueTemp = lowValue[0];
+	            var highValueTemp = highValue[0];
+	            //var unitAddition = unitToProperString(unitType); this is for adding mg/dL or mmol/L properly
+	            if(unitType == "mmol"){
+	              lowValueTemp = mgdlToMMOL(lowValueTemp);
+	              highValueTemp = mgdlToMMOL(highValueTemp);
+	             //it's mmol, so we have to convert the lowvalues. 
+	            } //else is mgdl
+				if(Number(bloodSugar)<=Number(lowValueTemp)){
 					mainTextHolder[0].style.backgroundColor = "red"
 					mainText[0].style.color = "black";
-				}else if(bloodSugar>=highValue[0]){
+				}else if(Number(bloodSugar)>=Number(highValueTemp)){
 					mainTextHolder[0].style.backgroundColor = "#c6a400"
 					mainText[0].style.color = "black";
 				}else{
@@ -244,13 +276,50 @@ function parseData(response){
 				if (newNum>=0){
 					newNum = "+"+newNum;
 				}
+				//additionally, set to mgdl or mmol depending on whether is chosen.
+				//unitToProperString
+				var fullDeltaLabel = document.getElementsByClassName("fullDeltaLabel");
 				var fullInnerDeltaLabel = document.getElementsByClassName("fullInnerDeltaLabel");
+				fullDeltaLabel[0].innerHTML = unitToProperString(unitType);
+				if(unitType == "mmol"){
+					newNum = mgdlToMMOL(newNum);
+					fullInnerDeltaLabel[0].style.fontSize = "12px"
+					fullInnerDeltaLabel[0].style.top = "-10px"
+					fullDeltaLabel[0].style.top = "-9px";
+					fullDeltaLabel[0].style.fontSize = "12px"
+					//change side values PLEASE MAKE THIS MORE EFFICENT SOMETIME!
+					document.getElementById("text400").innerHTML = "22.2";
+					document.getElementById("text400").style.left = "285px";
+					document.getElementById("text340").innerHTML = "18.9";
+					document.getElementById("text340").style.left = "285px";
+					document.getElementById("text280").innerHTML = "15.5";
+					document.getElementById("text280").style.left = "285px";
+					document.getElementById("text220").innerHTML = "12.2";
+					document.getElementById("text220").style.left = "285px";
+					document.getElementById("text160").innerHTML = "8.9";
+					document.getElementById("text100").innerHTML = "5.6";
+					document.getElementById("text40").innerHTML = "2.2";
+				}else{
+					fullInnerDeltaLabel[0].style.fontSize = "14px"
+					fullInnerDeltaLabel[0].style.top = "-14px"
+					fullDeltaLabel[0].style.top = "-16px";
+					fullDeltaLabel[0].style.fontSize = "16px"
+					//change side values PLEASE MAKE THIS MORE EFFICENT SOMETIME!
+					document.getElementById("text400").innerHTML = "400";
+					document.getElementById("text340").innerHTML = "340";
+					document.getElementById("text280").innerHTML = "280";
+					document.getElementById("text220").innerHTML = "220";
+					document.getElementById("text160").innerHTML = "160";
+					document.getElementById("text100").innerHTML = "100";
+					document.getElementById("text40").innerHTML = "40";
+				}
 				fullInnerDeltaLabel[0].innerHTML = newNum;
 		    }
 		}
 
 	    //make sure the html is set correctly!
 	  }
+	});
   }else if(response == "dne"){
   	//no data yet!
   	//alert("ERROR, NO DATA YET!");
@@ -259,6 +328,15 @@ function parseData(response){
   	document.getElementsByClassName("errorText")[0].innerHTML = "ERROR: No data!<br>Check the site URL<br> in the settings."
   }
   //}
+}
+
+function unitToProperString(unitType){
+  //yes i made a function for one if/else statement, deal with it
+  if(unitType == "mgdl"){
+    return "mg/dL";
+  }else if(unitType == "mmol"){
+    return "mmol/L";
+  }
 }
 
 function checkForUpdates(){

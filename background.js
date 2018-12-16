@@ -5,8 +5,7 @@
   var defaultLowValue = 80;
   var defaultHighValue = 180; 
   var defaultUrgentHighValue = 260;
-  var snoozeMinutes = 30;
-
+  var snoozeMinutesDefault = 30;
   var urgentLowValue;
   var lowValue;
   var highValue;
@@ -14,6 +13,7 @@
   var refreshGraphFunc;
 
   chrome.runtime.onInstalled.addListener(function() {
+    //note: please clean this code up >_>
     chrome.storage.local.set({siteUrl:defaultSite}, function() {
       console.log('The default site has been set as '+defaultSite);
     });
@@ -33,6 +33,10 @@
     });
     chrome.storage.local.set({snoozeUnix: "dne"}, function() {
       //snoozeunix is an amazing variable name and you can't convince me otherwise
+    });
+    chrome.storage.local.set({snoozeMinutes: snoozeMinutesDefault}, function() {
+    });
+    chrome.storage.local.set({unitValue: "mgdl"}, function() {
     });
   });
 //get data from nightscout!
@@ -60,7 +64,14 @@ function clearById(id){
     console.log("cleared succesfully!");
   })
 }
-
+function unitToProperString(unitType){
+  //yes i made a function for one if/else statement, deal with it
+  if(unitType == "mgdl"){
+    return "mg/dL";
+  }else if(unitType == "mmol"){
+    return "mmol/L";
+  }
+}
 function saveNotifID(notifID){
   chrome.storage.local.set({lastAlarmName: notifID}, function() {
     console.log("Notification Sent!"); 
@@ -68,7 +79,7 @@ function saveNotifID(notifID){
   });
 }
 //notification functions
-function notificationFunction(bgValue,dateValue,valueText){
+function notificationFunction(bgValue,dateValue,valueText,unitType){
   var tempColor;
   if(valueText != "Low" && valueText != "High") return;
   //chrome.browserAction.setBadgeBackgroundColor({color:tempColor});
@@ -79,84 +90,100 @@ function notificationFunction(bgValue,dateValue,valueText){
     chrome.storage.local.get(['snoozeUnix'], function(snoozeUnixRaw) {
       var snoozeUnixString = Object.values(snoozeUnixRaw)[0];
       //now we can see if the snooze has been within x (default 30?? minutes)
-      var snoozeVal;
-      if (snoozeUnixString != "dne"){
-        var snoozeUnixTemp = Math.round((new Date()).getTime() / 1000);
-        //compare
-        var snoozeDiff = -(Number(snoozeUnixString)-Number(snoozeUnixTemp)); //yes i double negated this. got a problem with it?
-        console.log("SNOOZED FOR "+(snoozeMinutes - (snoozeDiff/60)).toString()+" MORE MINUTES!");
-        if (snoozeDiff>snoozeMinutes * 60){
-          //reset difference
-          snoozeVal = false;
-          stopSnooze();
+      chrome.storage.local.get(['snoozeMinutes'], function(snoozeMinutesRaw) {
+        var snoozeMinutesVal = Number(Object.values(snoozeMinutesRaw)[0]);
+        if(snoozeMinutesVal == 0){
+          //just for old users who don't have old variables.
+          snoozeMinutesVal = 30;
         }
-        //console.log("SNOOZE DIFFERENCE IS "+snoozeDiff);
-      }else{
-        //no alarm - set to dne
-        snoozeVal = false;
-      }
-      if (snoozeVal == false){
-        if(dateValue.toString() != lastAlarmString){
-          //now double check that it hasn't been snoozed recently
-          console.log(dateValue.toString())
-          console.log(lastAlarmString);
-          //indeed a new data point!
-          if(valueText == "High"){
-            if(highValue[1] == true){
-              //is high and notifs are enabled.
-              if(bgValue>=urgentHighValue[0]){
-                //is an urgent high. adjust accordingly, check notification permissions.
-                if(urgentHighValue[1]==false){
-                  valueText=""
-                }else{
-                  valueText="Urgent High"
-                }
-              }
-            }else{
-              valueText=""
-            }
-          }else if(valueText == "Low"){
-            if(lowValue[1] == true){
-              //is low and notifs are enabled.
-              if(bgValue<=urgentLowValue[0]){
-                //is an urgent low. adjust accordingly, check notification permissions.
-                if(urgentLowValue[1]==false){
-                  valueText=""
-                }else{
-                  valueText="Urgent Low"
-                }
-              }
-            }else{
-              valueText=""
-            }
+        var snoozeVal;
+        if (snoozeUnixString != "dne"){
+          var snoozeUnixTemp = Math.round((new Date()).getTime() / 1000);
+          //compare
+          var snoozeDiff = -(Number(snoozeUnixString)-Number(snoozeUnixTemp)); //yes i double negated this. got a problem with it?
+          console.log("SNOOZED FOR "+(snoozeMinutesVal - (snoozeDiff/60)).toString()+" MORE MINUTES!");
+          if (snoozeDiff>snoozeMinutesVal * 60){
+            //reset difference
+            snoozeVal = false;
+            stopSnooze();
           }
-          var notifID = 'nightscout-alert';
-          //double check that notifs were indeed enabled.
-          if(valueText==""){
-            //notifications are disabled. whoops.
-            clearNotifications(notifID);
-          }else{
-              chrome.notifications.create(
-                notifID,{  
-                type: 'basic', 
-                iconUrl: 'images/nightscout128.png', 
-                title: valueText+" Glucose Alert", 
-                message: "Your blood sugar is "+bgValue,  
-                priority: 1,
-                buttons:[{
-                  title:"Dismiss",
-                  },
-                  {title:"Snooze ("+snoozeMinutes+"m)"}]
-                },
-              function(){
-                setTimeout(clearNotifications,10000);
-              });
-          }
+          //console.log("SNOOZE DIFFERENCE IS "+snoozeDiff);
         }else{
-          //don't clear - we still want the notification visible from last time!
-          console.log("sorry man, notification hasn't changed...")
+          //no alarm - set to dne
+          snoozeVal = false;
         }
-      }
+        if (snoozeVal == false){
+          if(dateValue.toString() != lastAlarmString){
+            //now double check that it hasn't been snoozed recently
+            console.log(dateValue.toString())
+            console.log(lastAlarmString);
+            //indeed a new data point!
+            var urgentLowValueTemp = urgentLowValue[0];
+            var urgentHighValueTemp = urgentHighValue[0];
+            //var unitAddition = unitToProperString(unitType); this is for adding mg/dL or mmol/L properly
+            if(unitType == "mmol"){
+              urgentLowValueTemp = mgdlToMMOL(urgentLowValueTemp);
+              urgentHighValueTemp = mgdlToMMOL(urgentHighValueTemp);
+             //it's mmol, so we have to convert the lowvalues. 
+            } //else is mgdl
+            //do mmol conversion stuff...
+            if(valueText == "High"){
+              if(highValue[1] == true){
+                //is high and notifs are enabled.
+                if(Number(bgValue)>=urgentHighValueTemp){
+                  //is an urgent high. adjust accordingly, check notification permissions.
+                  if(urgentHighValue[1]==false){
+                    valueText=""
+                  }else{
+                    valueText="Urgent High"
+                  }
+                }
+              }else{
+                valueText=""
+              }
+            }else if(valueText == "Low"){
+              if(lowValue[1] == true){
+                //is low and notifs are enabled.
+                if(Number(bgValue)<=urgentLowValueTemp){
+                  //is an urgent low. adjust accordingly, check notification permissions.
+                  if(urgentLowValue[1]==false){
+                    valueText=""
+                  }else{
+                    valueText="Urgent Low"
+                  }
+                }
+              }else{
+                valueText=""
+              }
+            }
+            var notifID = 'nightscout-alert';
+            //double check that notifs were indeed enabled.
+            if(valueText==""){
+              //notifications are disabled. whoops.
+              clearNotifications(notifID);
+            }else{
+                chrome.notifications.create(
+                  notifID,{  
+                  type: 'basic', 
+                  iconUrl: 'images/nightscout128.png', 
+                  title: valueText+" Glucose Alert", 
+                  message: "Your blood sugar is "+bgValue,  
+                  priority: 1,
+                  buttons:[{
+                    title:"Dismiss",
+                    },
+                    {title:"Snooze ("+snoozeMinutesVal+"m)"}]
+                  },
+                function(){
+                  setTimeout(clearNotifications,10000);
+                });
+            }
+          }else{
+            //don't clear - we still want the notification visible from last time!
+            console.log("sorry man, notification hasn't changed...")
+          }
+        }
+      });
     });
   });
 }
@@ -223,11 +250,18 @@ function clearNotifications(lastAlarmRaw){
     //});
   });
 }
-function bsAlerts(bloodSugarVal,dateValue,onlyUpdate){
-  if (bloodSugarVal <= lowValue[0]){
-      notificationFunction(bloodSugarVal,dateValue,"Low");
-  }else if(bloodSugarVal >= highValue[0]){
-      notificationFunction(bloodSugarVal,dateValue,"High");
+function bsAlerts(bloodSugarVal,dateValue,unitType){
+  var lowValueTemp = lowValue[0];
+  var highValueTemp = highValue[0];
+  if(unitType == "mmol"){
+    lowValueTemp = mgdlToMMOL(lowValueTemp);
+    highValueTemp = mgdlToMMOL(highValueTemp);
+   //it's mmol, so we have to convert the lowvalues. 
+  }
+  if (Number(bloodSugarVal) <= Number(lowValueTemp)){
+      notificationFunction(bloodSugarVal,dateValue,"Low",unitType);
+  }else if(Number(bloodSugarVal) >= Number(highValueTemp)){
+      notificationFunction(bloodSugarVal,dateValue,"High",unitType);
   }else{
     //not high, not low. let's clear notifications anyways.
     chrome.storage.local.get(['lastAlarmName'], function(lastAlarmRaw) {
@@ -241,11 +275,30 @@ function bsAlerts(bloodSugarVal,dateValue,onlyUpdate){
   }
 }
 
-function bsColors(bgValue){
+function mgdlToMMOL(mgdlVal){
+  var mmolMult = 18.016;
+  var tempMmol = mgdlVal/mmolMult;
+  //make sure to round to one decimal place!
+  var tempMmolFinal = Math.round(tempMmol*10)/10;
+  if(tempMmolFinal % 1 == 0){
+    tempMmolFinal = tempMmolFinal+".0";
+  }
+  return (tempMmolFinal);
+}
+
+function bsColors(bgValue,unitType){
+  var lowValueTemp = lowValue[0];
+  var highValueTemp = highValue[0];
+  if(unitType == "mmol"){
+    lowValueTemp = mgdlToMMOL(lowValueTemp);
+    highValueTemp = mgdlToMMOL(highValueTemp);
+    console.log("COLORS YEET");
+   //it's mmol, so we have to convert the lowvalues. 
+  }
   var customColor = "gray";
-  if (bgValue <= lowValue[0]){
+  if (Number(bgValue) <= lowValueTemp){
     customColor = "red";
-  }else if(bgValue >= highValue[0]){
+  }else if(Number(bgValue) >= highValueTemp){
     customColor = "#c6a400";
   }
   chrome.browserAction.setBadgeBackgroundColor({color:customColor});
@@ -266,55 +319,67 @@ function saveFunc(responseData,callbackFunc){
           if(tempBG != false){
             //bsAlerts(tempBG,tempDate);
           } else if here */
-        if(Object.values(result) == responseData){
-          var tempTest = Object.values(result);
-          var tempTabl = returnCurrentBG(tempTest,true,true);
-          tempBG = tempTabl[0];
-          if(tempBG != false){
+        //but first, double check unit type.
+        chrome.storage.local.get(['unitValue'], function(unitResult) {
+          var unitType = Object.values(unitResult)[0];
+          if(Object.values(result) == responseData){
+            //it's the same.
+            var tempTest = Object.values(result);
+            var tempTabl = returnCurrentBG(tempTest,true,true,unitType);
+            tempBG = tempTabl[0];
+            if(tempBG != false){
             //bsAlerts(tempBG,tempDate,true);
             //change bg vals.
-            bsColors(currentBG);
-          }
-          console.log("It's fine - data is already correct.")
-          //still, double check!
-        }else{
-          console.log("Saving Data!");
-          chrome.storage.local.set({bsTable: responseData}, function() {
-            //now that it's been saved, double check that you callback.
-            if(callbackFunc){
-              callbackFunc()
+              console.log("CURRENT IS "+tempBG);
+              bsColors(tempBG,unitType);
             }
-            //run more after-save code here.
-            forceRefreshGraph();
-            console.log('Value succesfully set.');
-            //do low, high alerts too!
-            var currentDATA = returnCurrentBG(responseData,false,true);
-            currentBG = currentDATA[0];
-            currentDate = currentDATA[1];
-            if(currentBG != false){
-              //currentBG = 70;
-              console.log(currentBG);
-              //set icon
-              changeIconNumber(currentBG);
-              //note: add custom alert vars.
-              chrome.storage.local.get(['bsTable'], function(result) {
-              //not only does this control low/high alerts, but also the colors of the program.
-              //get alarmValues
-              checkBSvariables(function(){
-                //now that variables are set, do alerts and colors.
-                bsAlerts(currentBG,currentDate);
-                bsColors(currentBG);
+            console.log("It's fine - data is already correct.")
+            //still, double check!
+          }else{
+            console.log("Saving Data!");
+            chrome.storage.local.set({bsTable: responseData}, function() {
+              //now that it's been saved, double check that you callback.
+              if(callbackFunc){
+                callbackFunc()
+              }
+              //run more after-save code here.
+              forceRefreshGraph();
+              console.log('Value succesfully set.');
+              //do low, high alerts too!
+              var currentDATA = returnCurrentBG(responseData,false,true,unitType);
+              currentBG = currentDATA[0];
+              //mmol and mgdl have a few problems - for now, notification data is stored in mgdl, so make sure to convert them to mmol when you get into the function!
+              currentDate = currentDATA[1];
+              if(currentBG != false){
+                //currentBG = 70;
+                console.log(currentBG);
+                //set icon
+                changeIconNumber(currentBG);
+                //note: add custom alert vars.
+                chrome.storage.local.get(['bsTable'], function(result) {
+                //not only does this control low/high alerts, but also the colors of the program.
+                //get alarmValues
+                checkBSvariables(function(){
+                  //now that variables are set, do alerts and colors.
+                  bsAlerts(currentBG,currentDate,unitType);
+                  bsColors(currentBG,unitType);
+                });
               });
-            });
-          }
-        });
-        //console.log(result);
-    }
+            }
+          });
+          //console.log(result);
+      }
+    });
   });
 }
 
-function returnCurrentBG(data,notif,returnDate){
+function returnCurrentBG(data,notif,returnDate,unitType){
   var parsed;
+  if(!unitType){
+    //no unit type, assume mgdl!
+    unitType = "mgdl";
+  }
+
   if(notif == true){
     //actually fixing errors: small brain
     //just using a try catch statement: galaxy brain
@@ -337,12 +402,21 @@ function returnCurrentBG(data,notif,returnDate){
     var sgv = indivString["sgv"];
     var dateStr = indivString["date"];
     if (firstValue==true){
+      //first bg value, meaning we need to C O N V E R T!
+      if(unitType == "mmol"){
+        //mmol, convert!
+        sgv = mgdlToMMOL(sgv);
+        console.log("MMOL VERSION IS "+sgv);
+      }else if(unitType == "mgdl") {
+        //mgdl, make sure to change to number
+        sgv = Number(sgv);
+      }
       if(returnDate==false){
-        return Number(sgv);
+        return sgv;
       }else if(returnDate==true){
-        return [Number(sgv),Number(dateStr)];
+        return [sgv,Number(dateStr)];
       }else{
-        return Number(sgv);
+        return sgv;
       }
     }
   }
@@ -356,7 +430,8 @@ function parseData(response,callbackFunc){
   }
   var parsed = JSON.parse(response);
   console.log("SUCCESSFUL, PARSING DATA NOW!");
-  for(i = 0; i < parsed.length; i++){
+  //example of datatypes below.
+ /* for(i = 0; i < parsed.length; i++){
     var firstValue = false;
     if (i==0){
       firstValue = true;
@@ -385,7 +460,7 @@ function parseData(response,callbackFunc){
       //send notification test!
       //createNotif(sgv);
     }
-  }
+  }*/
   //}
 }
 
@@ -412,8 +487,110 @@ function manipulateURL(urlObj){
   return siteUrlBase;
 }
 
+function manipulateProfileURL(urlObj){
+  var siteUrlBase = Object.values(urlObj)[0];
+  console.log(siteUrlBase);
+  //check if it starts with https/http and manipulate accordingly
+  if(siteUrlBase.startsWith("https://") || siteUrlBase.startsWith("http://")){
+    //it starts with https/http, we should be good.
+  }else{
+    //no http, add to string.
+    siteUrlBase = "http://"+siteUrlBase;
+  } 
+  //make sure it ends in a big ol slash
+  if(siteUrlBase.endsWith("/")){
+    //we're fine. we have a slash.
+  }else{
+    //no slash, add one.
+    siteUrlBase = siteUrlBase+"/";
+  }
+  siteUrlBase = siteUrlBase+ 'api/v1/profile';
+  //console.log("URL IS "+siteUrlBase); 
+  //return url with correct values.
+  return siteUrlBase;
+}
+
 function webError(){
  console.log("ERROR! SITE DOES NOT EXIST!"); 
+}
+
+function profileWebRequest(profileURL,callbackFunctionWeb){
+  var defaultUnit = "mgdl"; 
+  var unit;
+  var xhr = new XMLHttpRequest();
+  xhr.open("GET", profileURL, true);
+  xhr.onload = function (e) {
+    if (xhr.readyState === 4) {
+      if (xhr.status === 200) {
+        //we got the data, boys!
+        var webData = JSON.parse(xhr.responseText);
+        console.log("WE GOT SOME PROFILE DATA:");
+        var dataLength = Object.values(webData[0]).length;
+        var defaultProfileName;
+        var profileStorage;
+        for(i=0;i<dataLength;i++){
+          if(Object.keys(webData[0])[i] == "defaultProfile"){
+            //we found the default profile - get the value!;
+            defaultProfileName = Object.values(webData[0])[i];
+          }else if(Object.keys(webData[0])[i] == "store"){
+            profileStorage = Object.values(webData[0])[i];
+          }
+        }
+        console.log(" PROFILE DATA STORAGE: ")
+        console.log(profileStorage);
+        var profileDataLength = Object.values(profileStorage).length;
+        console.log(profileDataLength);
+        var defaultProfileData;
+        for(i=0;i<profileDataLength;i++){
+          if(Object.keys(profileStorage)[i] == defaultProfileName){
+            //we found the default profile - get the value!;
+            defaultProfileData = Object.values(profileStorage)[i]
+            console.log("WE FOUND IT!");
+          }
+        }
+        var profileDataLengthInner = Object.values(defaultProfileData).length;
+        for(i=0;i<profileDataLengthInner;i++){
+          if(Object.keys(defaultProfileData)[i] == "units"){
+            //we found the default profile - get the value!;
+            var unitTemp = Object.values(defaultProfileData)[i];
+            console.log("UNITS ARE: ")
+            console.log(unitTemp)
+            if(unitTemp == "mmol"){
+              //mmol
+              unit = "mmol";
+            }else if(unitTemp == "md/dl" || unitTemp == "mg/dl"){
+              //mgdl
+              //also cmon nightscout devs.. it's spelled md/dl in the api... LITERALLY UN-USEABLE....
+              unit = "mgdl";
+            }
+          }  
+        }
+        //we got the default profile, now parse.
+        if(unit){
+          //we got the unit. do nothing.
+        }else{
+          unit = defaultUnit;
+          //something went wrong, set to default (mgdl)
+        }
+        //unit is stored in "mgdl" or "mmol". save this and return.
+        chrome.storage.local.set({unitValue:unit}, function() {
+          //set unit. do callback now yay!
+          console.log("SAVED UNIT AS "+unit);
+          if(callbackFunctionWeb){
+            callbackFunctionWeb();
+          }
+        });
+      } else {
+        webError();
+      }
+    }
+  };
+
+  xhr.onerror = function (e) {
+    //console.error(xhr.statusText);
+    webError();
+  };
+  xhr.send(null);
 }
 
 function webRequest(callbackFunc){
@@ -434,7 +611,12 @@ function webRequest(callbackFunc){
         if (xhr.readyState === 4) {
           if (xhr.status === 200) {
             //console.log(xhr.responseText);
-            parseData(xhr.responseText,callbackFunc);
+            //everything is done. now, get the profile data and set to mgdl/mmol.
+            var profileURLBase = manipulateProfileURL(siteData);
+            profileWebRequest(profileURLBase,function(){
+              console.log("PARSING DATA!");
+              parseData(xhr.responseText,callbackFunc);
+            });
             // we are done. find a way to callback after all the data, too.
           } else {
             webError();
