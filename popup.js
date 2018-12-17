@@ -6,6 +6,7 @@ var highValue;
 var urgentHighValue;
 
 var globalOldData;
+var globalOldNumber;
 
 function arrowValues(direction) {
     var baseUrl = "arrows/"
@@ -134,192 +135,200 @@ function mgdlToMMOL(mgdlVal) {
     return (tempMmolFinal);
 }
 
+function createGraph(dataParsed,unitType,dataAmount){
+	for (i = 0; i < dataAmount; i++) {
+		var firstValue = false;
+		if (i == 0) {
+		    firstValue = true;
+		}
+		var indivString = dataParsed[i];
+		//get variables from data.
+		//main variables
+		var date = indivString["date"];
+		var dateString = indivString["dateString"];
+		var sgv = indivString["sgv"];
+		//now we need to do mmol stuff. is it mmol? if so, convert!
+		var sgvMgdl = sgv;
+		if (unitType == "mmol") {
+		    sgv = mgdlToMMOL(sgv);
+		    //also, change delta to mmol!
+		}
+		var bloodSugar = sgv; //just for the purpose of making variable names easier to understand
+		var delta = indivString["delta"];
+		//DOUBLE CHECK DELTA
+		console.log(delta + " IS DELTA");
+		//other variables
+		var device = indivString["device"];
+		var direction = indivString["direction"];
+		var filtered = indivString["filtered"];
+		var noise = indivString["noise"];
+		var rssi = indivString["rssi"];
+		var sysTime = indivString["sysTime"];
+		var type = indivString["type"];
+		var unfiltered = indivString["unfiltered"];
+		var id = indivString["id"];
+		//finish parsing, do some other stuff.
+		//get arrow values!
+		/*if (firstValue==true){
+		  alert("CURRENT BLOOD SUGAR VALUE IS "+sgv);
+		}*/
+		//create ONE dot for this singular data point. also, double check how much data is being used.
+		//double check it's the right type of point.. if not, stop now.
+		if (sgv) {
+		    if (isNaN(delta)) {
+		        console.log("YEET");
+		        //calculate yourself!	
+		        var indivString2 = dataParsed[i + 1];
+		        if (indivString2) {
+		            var newDeltaCalc1 = indivString2["sgv"];
+		            //again, do some mmol stuff.
+		            if (unitType == "mmol") {
+		                newDeltaCalc1 = mgdlToMMOL(newDeltaCalc1);
+		            }
+		            if (newDeltaCalc1) {
+		                //console.log("YEEEEET");
+		                delta = (Number(sgv) - Number(newDeltaCalc1)).toString();
+		            }
+		        } else {
+		            delta = 0;
+		        }
+		    }
+		    console.log(delta);
+		    var newDot = document.createElement("div");
+		    newDot.className = "dot";
+		    document.getElementsByClassName("innerChart")[0].appendChild(newDot);
+		    newDot.style.top = 154 - (((sgvMgdl - 40) / 40) * 16.666) + "px";
+		    newDot.style.left = 258 - (i * (243 / (dataAmount - 1))) + "px";
+		    //dotMOEvent(newDot,bloodSugar,dateString);
+		    //define vars for following functions
+		    var timeText = document.getElementsByClassName("mouseOverTimeValue")[0];
+		    var bsText = document.getElementsByClassName("mouseOverBGV")[0];
+		    var mainTooltip = document.getElementsByClassName("mouseOverDiv")[0];
+		    var onMouseOver = function(dotObject, bsValue, timeValue) {
+		        dotObject.onmouseover = function() {
+		            //alert("OVER");
+		            timeText.innerHTML = convertDateNoSpace(timeValue);
+		            bsText.innerHTML = "BG: " + bsValue;
+		            var styleFromDot = Number((dotObject.style.left).slice(0, -2));
+		            var styleFromDotTop = Number((dotObject.style.top).slice(0, -2));
+		            var topPreCalc = (styleFromDotTop + 22)
+		            if (topPreCalc <= 68) {
+		                topPreCalc = 68;
+		            }
+		            mainTooltip.style.left = (styleFromDot + 5) + "px";
+		            mainTooltip.style.top = (topPreCalc) + "px";
+		            mainTooltip.style.visibility = "visible"
+		        };
+		        dotObject.onmouseout = function() {
+		            mainTooltip.style.visibility = "hidden";
+		        }
+		    };
+		    onMouseOver(newDot, sgv, dateString);
+		    /*var dots = document .getElementsByClassName("dot");
+		//var dotStuff=document.getElementById("dot"+(i+1));
+		if(dots[i]){
+		dots[i].style.top = 154-(((sgv-40)/40)*16.666)+"px";
+		//dots[i].style.left="258px";
+		} */
+		    if (firstValue == true) {
+		        //also, set time correctly.
+		        document.getElementById("date2").innerHTML = convertDate(dateString);
+		        convertDateFinal(dateString);
+		        //document.getElementById("date1").innerHTML = convertDateFinal(dateString);
+		        var arrowUrlString = arrowValues(direction.toUpperCase());
+		        //set main bs text to bloodSugar.
+		        var mainText = document.getElementsByClassName("mainText");
+		        var mainTextHolder = document.getElementsByClassName("mainTextHolder");
+		        mainText[0].innerHTML = bloodSugar;
+		        var arrowStr = "";
+		        var lowValueTemp = lowValue[0];
+		        var highValueTemp = highValue[0];
+		        //var unitAddition = unitToProperString(unitType); this is for adding mg/dL or mmol/L properly
+		        if (unitType == "mmol") {
+		            lowValueTemp = mgdlToMMOL(lowValueTemp);
+		            highValueTemp = mgdlToMMOL(highValueTemp);
+		            //it's mmol, so we have to convert the lowvalues. 
+		        } //else is mgdl
+		        if (Number(bloodSugar) <= Number(lowValueTemp)) {
+		            mainTextHolder[0].style.backgroundColor = "red"
+		            mainText[0].style.color = "black";
+		        } else if (Number(bloodSugar) >= Number(highValueTemp)) {
+		            mainTextHolder[0].style.backgroundColor = "#c6a400"
+		            mainText[0].style.color = "black";
+		        } else {
+		            mainTextHolder[0].style.backgroundColor = "black"
+		            mainText[0].style.color = "gray";
+		            arrowStr = "gray";
+		        }
+		        //set arrow to correct image. 
+		        var arrowImage = document.getElementsByClassName("arrowImage");
+		        arrowImage[0].src = arrowStringVal + arrowStr + ".png";
+		        //set delta to correct value.
+		        newNum = Math.round(Number(delta));
+		        if (newNum >= 0) {
+		            newNum = "+" + newNum;
+		        }
+		        //additionally, set to mgdl or mmol depending on whether is chosen.
+		        //unitToProperString
+		        var fullDeltaLabel = document.getElementsByClassName("fullDeltaLabel");
+		        var fullInnerDeltaLabel = document.getElementsByClassName("fullInnerDeltaLabel");
+		        fullDeltaLabel[0].innerHTML = unitToProperString(unitType);
+		        if (unitType == "mmol") {
+		            newNum = mgdlToMMOL(newNum);
+		            fullInnerDeltaLabel[0].style.fontSize = "12px"
+		            fullInnerDeltaLabel[0].style.top = "-10px"
+		            fullDeltaLabel[0].style.top = "-9px";
+		            fullDeltaLabel[0].style.fontSize = "12px"
+		            //change side values PLEASE MAKE THIS MORE EFFICENT SOMETIME!
+		            document.getElementById("text400").innerHTML = "22.2";
+		            document.getElementById("text400").style.left = "285px";
+		            document.getElementById("text340").innerHTML = "18.9";
+		            document.getElementById("text340").style.left = "285px";
+		            document.getElementById("text280").innerHTML = "15.5";
+		            document.getElementById("text280").style.left = "285px";
+		            document.getElementById("text220").innerHTML = "12.2";
+		            document.getElementById("text220").style.left = "285px";
+		            document.getElementById("text160").innerHTML = "8.9";
+		            document.getElementById("text100").innerHTML = "5.6";
+		            document.getElementById("text40").innerHTML = "2.2";
+		        } else {
+		            fullInnerDeltaLabel[0].style.fontSize = "14px"
+		            fullInnerDeltaLabel[0].style.top = "-14px"
+		            fullDeltaLabel[0].style.top = "-16px";
+		            fullDeltaLabel[0].style.fontSize = "16px"
+		            //change side values PLEASE MAKE THIS MORE EFFICENT SOMETIME!
+		            document.getElementById("text400").innerHTML = "400";
+		            document.getElementById("text340").innerHTML = "340";
+		            document.getElementById("text280").innerHTML = "280";
+		            document.getElementById("text220").innerHTML = "220";
+		            document.getElementById("text160").innerHTML = "160";
+		            document.getElementById("text100").innerHTML = "100";
+		            document.getElementById("text40").innerHTML = "40";
+		        }
+		        fullInnerDeltaLabel[0].innerHTML = newNum;
+		    }
+		}
+	//make sure the html is set correctly!
+	}
+       
+}
+
 function parseData(response) {
     //make sure to double check alarm values first of all!
     if (response != "dne") {
         //there is a response. now get unit type.
         chrome.storage.local.get(['unitValue'], function(unitResult) {
-            var unitType = Object.values(unitResult)[0];
-            document.getElementsByClassName("errorText")[0].innerHTML = ""
-            //make sure to delete all previous dots.
-            var parsed = JSON.parse(response);
-            console.log("LENGTH IS " + parsed.length);
-            console.log("PARSING DATA NOW!");
-            for (i = 0; i < parsed.length; i++) {
-                var firstValue = false;
-                if (i == 0) {
-                    firstValue = true;
-                }
-                var indivString = parsed[i];
-                //get variables from data.
-                //main variables
-                var date = indivString["date"];
-                var dateString = indivString["dateString"];
-                var sgv = indivString["sgv"];
-                //now we need to do mmol stuff. is it mmol? if so, convert!
-                var sgvMgdl = sgv;
-                if (unitType == "mmol") {
-                    sgv = mgdlToMMOL(sgv);
-                    //also, change delta to mmol!
-                }
-                var bloodSugar = sgv; //just for the purpose of making variable names easier to understand
-                var delta = indivString["delta"];
-                //DOUBLE CHECK DELTA
-                console.log(delta + " IS DELTA");
-                //other variables
-                var device = indivString["device"];
-                var direction = indivString["direction"];
-                var filtered = indivString["filtered"];
-                var noise = indivString["noise"];
-                var rssi = indivString["rssi"];
-                var sysTime = indivString["sysTime"];
-                var type = indivString["type"];
-                var unfiltered = indivString["unfiltered"];
-                var id = indivString["id"];
-                //finish parsing, do some other stuff.
-                //get arrow values!
-                /*if (firstValue==true){
-                  alert("CURRENT BLOOD SUGAR VALUE IS "+sgv);
-                }*/
-                //create ONE dot for this singular data point. also, double check how much data is being used.
-                //double check it's the right type of point.. if not, stop now.
-                if (sgv) {
-                    if (isNaN(delta)) {
-                        console.log("YEET");
-                        //calculate yourself!	
-                        var indivString2 = parsed[i + 1];
-                        if (indivString2) {
-                            var newDeltaCalc1 = indivString2["sgv"];
-                            //again, do some mmol stuff.
-                            if (unitType == "mmol") {
-                                newDeltaCalc1 = mgdlToMMOL(newDeltaCalc1);
-                            }
-                            if (newDeltaCalc1) {
-                                //console.log("YEEEEET");
-                                delta = (Number(sgv) - Number(newDeltaCalc1)).toString();
-                            }
-                        } else {
-                            delta = 0;
-                        }
-                    }
-                    console.log(delta);
-                    var newDot = document.createElement("div");
-                    newDot.className = "dot";
-                    document.getElementsByClassName("innerChart")[0].appendChild(newDot);
-                    newDot.style.top = 154 - (((sgvMgdl - 40) / 40) * 16.666) + "px";
-                    newDot.style.left = 258 - (i * (243 / (parsed.length - 1))) + "px";
-                    //dotMOEvent(newDot,bloodSugar,dateString);
-                    //define vars for following functions
-                    var timeText = document.getElementsByClassName("mouseOverTimeValue")[0];
-                    var bsText = document.getElementsByClassName("mouseOverBGV")[0];
-                    var mainTooltip = document.getElementsByClassName("mouseOverDiv")[0];
-                    var onMouseOver = function(dotObject, bsValue, timeValue) {
-                        dotObject.onmouseover = function() {
-                            //alert("OVER");
-                            timeText.innerHTML = convertDateNoSpace(timeValue);
-                            bsText.innerHTML = "BG: " + bsValue;
-                            var styleFromDot = Number((dotObject.style.left).slice(0, -2));
-                            var styleFromDotTop = Number((dotObject.style.top).slice(0, -2));
-                            var topPreCalc = (styleFromDotTop + 22)
-                            if (topPreCalc <= 68) {
-                                topPreCalc = 68;
-                            }
-                            mainTooltip.style.left = (styleFromDot + 5) + "px";
-                            mainTooltip.style.top = (topPreCalc) + "px";
-                            mainTooltip.style.visibility = "visible"
-                        };
-                        dotObject.onmouseout = function() {
-                            mainTooltip.style.visibility = "hidden";
-                        }
-                    };
-                    onMouseOver(newDot, sgv, dateString);
-                    /*var dots = document .getElementsByClassName("dot");
-		    //var dotStuff=document.getElementById("dot"+(i+1));
-		    if(dots[i]){
-		    	dots[i].style.top = 154-(((sgv-40)/40)*16.666)+"px";
-		    	//dots[i].style.left="258px";
-		    } */
-                    if (firstValue == true) {
-                        //also, set time correctly.
-                        document.getElementById("date2").innerHTML = convertDate(dateString);
-                        convertDateFinal(dateString);
-                        //document.getElementById("date1").innerHTML = convertDateFinal(dateString);
-                        var arrowUrlString = arrowValues(direction.toUpperCase());
-                        //set main bs text to bloodSugar.
-                        var mainText = document.getElementsByClassName("mainText");
-                        var mainTextHolder = document.getElementsByClassName("mainTextHolder");
-                        mainText[0].innerHTML = bloodSugar;
-                        var arrowStr = "";
-                        var lowValueTemp = lowValue[0];
-                        var highValueTemp = highValue[0];
-                        //var unitAddition = unitToProperString(unitType); this is for adding mg/dL or mmol/L properly
-                        if (unitType == "mmol") {
-                            lowValueTemp = mgdlToMMOL(lowValueTemp);
-                            highValueTemp = mgdlToMMOL(highValueTemp);
-                            //it's mmol, so we have to convert the lowvalues. 
-                        } //else is mgdl
-                        if (Number(bloodSugar) <= Number(lowValueTemp)) {
-                            mainTextHolder[0].style.backgroundColor = "red"
-                            mainText[0].style.color = "black";
-                        } else if (Number(bloodSugar) >= Number(highValueTemp)) {
-                            mainTextHolder[0].style.backgroundColor = "#c6a400"
-                            mainText[0].style.color = "black";
-                        } else {
-                            mainTextHolder[0].style.backgroundColor = "black"
-                            mainText[0].style.color = "gray";
-                            arrowStr = "gray";
-                        }
-                        //set arrow to correct image. 
-                        var arrowImage = document.getElementsByClassName("arrowImage");
-                        arrowImage[0].src = arrowStringVal + arrowStr + ".png";
-                        //set delta to correct value.
-                        newNum = Math.round(Number(delta));
-                        if (newNum >= 0) {
-                            newNum = "+" + newNum;
-                        }
-                        //additionally, set to mgdl or mmol depending on whether is chosen.
-                        //unitToProperString
-                        var fullDeltaLabel = document.getElementsByClassName("fullDeltaLabel");
-                        var fullInnerDeltaLabel = document.getElementsByClassName("fullInnerDeltaLabel");
-                        fullDeltaLabel[0].innerHTML = unitToProperString(unitType);
-                        if (unitType == "mmol") {
-                            newNum = mgdlToMMOL(newNum);
-                            fullInnerDeltaLabel[0].style.fontSize = "12px"
-                            fullInnerDeltaLabel[0].style.top = "-10px"
-                            fullDeltaLabel[0].style.top = "-9px";
-                            fullDeltaLabel[0].style.fontSize = "12px"
-                            //change side values PLEASE MAKE THIS MORE EFFICENT SOMETIME!
-                            document.getElementById("text400").innerHTML = "22.2";
-                            document.getElementById("text400").style.left = "285px";
-                            document.getElementById("text340").innerHTML = "18.9";
-                            document.getElementById("text340").style.left = "285px";
-                            document.getElementById("text280").innerHTML = "15.5";
-                            document.getElementById("text280").style.left = "285px";
-                            document.getElementById("text220").innerHTML = "12.2";
-                            document.getElementById("text220").style.left = "285px";
-                            document.getElementById("text160").innerHTML = "8.9";
-                            document.getElementById("text100").innerHTML = "5.6";
-                            document.getElementById("text40").innerHTML = "2.2";
-                        } else {
-                            fullInnerDeltaLabel[0].style.fontSize = "14px"
-                            fullInnerDeltaLabel[0].style.top = "-14px"
-                            fullDeltaLabel[0].style.top = "-16px";
-                            fullDeltaLabel[0].style.fontSize = "16px"
-                            //change side values PLEASE MAKE THIS MORE EFFICENT SOMETIME!
-                            document.getElementById("text400").innerHTML = "400";
-                            document.getElementById("text340").innerHTML = "340";
-                            document.getElementById("text280").innerHTML = "280";
-                            document.getElementById("text220").innerHTML = "220";
-                            document.getElementById("text160").innerHTML = "160";
-                            document.getElementById("text100").innerHTML = "100";
-                            document.getElementById("text40").innerHTML = "40";
-                        }
-                        fullInnerDeltaLabel[0].innerHTML = newNum;
-                    }
-                }
-
-                //make sure the html is set correctly!
-            }
+        	chrome.storage.local.get(['dataAmount'], function(dataResult) {
+	            var unitType = Object.values(unitResult)[0];
+	            var dataAmount = Number(Object.values(dataResult)[0]);
+	            document.getElementsByClassName("errorText")[0].innerHTML = ""
+	            globalOldNumber = dataAmount;
+	            //make sure to delete all previous dots.
+	            var parsed = JSON.parse(response);
+	            //console.log("LENGTH IS " + parsed.length);
+	            console.log("PARSING DATA NOW!");
+	            createGraph(parsed,unitType,dataAmount);
+       		});
         });
     } else if (response == "dne") {
         //no data yet!
@@ -342,30 +351,28 @@ function unitToProperString(unitType) {
 
 function checkForUpdates() {
     chrome.storage.local.get(['bsTable'], function(exportedData) {
-        var convertedData = Object.values(exportedData);
-        if (JSON.stringify(convertedData) == JSON.stringify(globalOldData)) {
-            //do nothing, data is same.
-            console.log("DATA IS NOT UPDATED.")
-        } else {
-            //we did it! update!
-            globalOldData = convertedData;
-            console.log("BEEN UPDATED");
-            var dots = document.getElementsByClassName('dot');
+        chrome.storage.local.get(['dataAmount'], function(dataResult) {
+	        var convertedData = Object.values(exportedData);
+	        var dataAmount = Number(Object.values(dataResult)[0]);
+	        if (JSON.stringify(convertedData) == JSON.stringify(globalOldData) && dataAmount == globalOldNumber) {
+	            //do nothing, data is same.
+	            console.log("DATA IS NOT UPDATED.")
+	        } else {
+	            //we did it! update!
+	            globalOldData = convertedData;
+	            console.log("BEEN UPDATED");
+	            var dots = document.getElementsByClassName('dot');
 
-            while (dots[0]) {
-                dots[0].parentNode.removeChild(dots[0]);
-            }
-            console.log("REMOVED ALL DOTS");
-            //alert("DATA BEEN UPDATED FOO");
-            parseData(convertedData);
-        }
+	            while (dots[0]) {
+	                dots[0].parentNode.removeChild(dots[0]);
+	            }
+	            console.log("REMOVED ALL DOTS");
+	            //alert("DATA BEEN UPDATED FOO");
+	            parseData(convertedData);
+	        }
+    	});
     });
 }
-
-/*document.getElementById("twohour").onclick = function(){
-	alert("HOLY CRAP IT GOT PRESSED!");
-	document.getElementById("twohour").blur();
-};*/
 
 function setButtons(button) {
     var newButtons = document.getElementsByTagName('button');
@@ -416,14 +423,6 @@ function getHighlightedFromValue() {
                     button.className = "hourButtonPressed";
                 }
             }
-            //if(button.id = idString){
-            //if it is the RIGHT button, light er up!
-            //button.className = "hourButton";
-            //}else{
-            //else make it sad.
-            //button.className = "hourButtonPressed";
-            //}
-            //buttonClickFunc(button);
         }
     });
 }
@@ -478,11 +477,11 @@ function buttonClickFunc(button) {
             }, function() {
                 console.log('Amount of data has been set to ' + exportNumber);
                 console.log('now, forcing load.')
-                chrome.extension.getBackgroundPage().webRequest(function() {
+                //chrome.extension.getBackgroundPage().webRequest(function() {
                     //data saving is done - it has returned!
                     checkForUpdates();
                     //force refresh graph;
-                });
+                //});
                 getHighlightedFromValue();
                 //setTimeout(getHighlightedFromValue(), 100);
             });

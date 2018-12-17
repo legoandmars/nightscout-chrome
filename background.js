@@ -1,4 +1,4 @@
-var minuteVal = .05;
+var secondVal = 10;
 var addToUrl = '/api/v1/entries.json?count=';
 var urgentLowValue;
 var lowValue;
@@ -36,6 +36,8 @@ var storageArray = [{
         snoozeMinutes: snoozeMinutesDefault
     }, {
         unitValue: "mgdl"
+    }, {
+        tempBsTable: "dne"
     }
 ];
 var storageInc = 0; //used for looping through storage
@@ -374,7 +376,7 @@ function saveFunc(responseData, callbackFunc) {
     console.log("SAVE FUNC ENABLED!");
     //before saving, check BG vals.
     //var convertedString = JSON.stringify(responseData);
-    chrome.storage.local.get(['bsTable'], function(result) {
+    chrome.storage.local.get(['tempBsTable'], function(result) {
         //data needs to be updated!
         console.log("Updating data!");
         /* if(responseData.toString() == "pushNotifications"){
@@ -407,35 +409,41 @@ function saveFunc(responseData, callbackFunc) {
             } else {
                 console.log("Saving Data!");
                 chrome.storage.local.set({
-                    bsTable: responseData
+                    tempBsTable: responseData
                 }, function() {
-                    //now that it's been saved, double check that you callback.
-                    if (callbackFunc) {
-                        callbackFunc()
-                    }
-                    //run more after-save code here.
-                    forceRefreshGraph();
-                    console.log('Value succesfully set.');
-                    //do low, high alerts too!
-                    var currentDATA = returnCurrentBG(responseData, false, true, unitType);
-                    currentBG = currentDATA[0];
-                    //mmol and mgdl have a few problems - for now, notification data is stored in mgdl, so make sure to convert them to mmol when you get into the function!
-                    currentDate = currentDATA[1];
-                    if (currentBG != false) {
-                        //currentBG = 70;
-                        console.log(currentBG);
-                        //set icon
-                        //note: add custom alert vars.
-                        chrome.storage.local.get(['bsTable'], function(result) {
-                            //not only does this control low/high alerts, but also the colors of the program.
-                            //get alarmValues
-                            checkBSvariables(function() {
-                                //now that variables are set, do alerts and colors.
-                                bsAlerts(currentBG, currentDate, unitType);
-                                bsColors(currentBG, unitType);
+                    //web request AGAIN, this time with the full dataTable.
+                    webRequest(function(dataReturned){
+                      chrome.storage.local.set({bsTable: dataReturned},function(){
+                        //parse
+                        //now that it's been saved, double check that you callback.
+                        if (callbackFunc) {
+                            callbackFunc()
+                        }
+                        //run more after-save code here.
+                        forceRefreshGraph();
+                        console.log('Value succesfully set.');
+                        //do low, high alerts too!
+                        var currentDATA = returnCurrentBG(responseData, false, true, unitType);
+                        currentBG = currentDATA[0];
+                        //mmol and mgdl have a few problems - for now, notification data is stored in mgdl, so make sure to convert them to mmol when you get into the function!
+                        currentDate = currentDATA[1];
+                        if (currentBG != false) {
+                            //currentBG = 70;
+                            console.log(currentBG);
+                            //set icon
+                            //note: add custom alert vars.
+                            chrome.storage.local.get(['bsTable'], function(result) {
+                                //not only does this control low/high alerts, but also the colors of the program.
+                                //get alarmValues
+                                checkBSvariables(function() {
+                                    //now that variables are set, do alerts and colors.
+                                    bsAlerts(currentBG, currentDate, unitType);
+                                    bsColors(currentBG, unitType);
+                                });
                             });
-                        });
-                    }
+                        }
+                      });
+                    },true);
                 });
                 //console.log(result);
             }
@@ -497,43 +505,11 @@ function parseData(response, callbackFunc) {
     } else {
         saveFunc(response);
     }
-    var parsed = JSON.parse(response);
+    //var parsed = JSON.parse(response);
     console.log("SUCCESSFUL, PARSING DATA NOW!");
-    //example of datatypes below.
-    /* for(i = 0; i < parsed.length; i++){
-       var firstValue = false;
-       if (i==0){
-         firstValue = true;
-       }
-       var indivString = parsed[i];
-       //get variables from data.
-       //main variables
-       var date = indivString["date"];
-       var dateString = indivString["dateString"];
-       var sgv = indivString["sgv"];
-       var bloodSugar = sgv; //just for the purpose of making variable names easier to understand
-       //other variables
-       var delta = indivString["delta"];
-       var device = indivString["device"];
-       var direction = indivString["direction"];
-       var filtered = indivString["filtered"];
-       var noise = indivString["noise"];
-       var rssi = indivString["rssi"];
-       var sysTime = indivString["sysTime"];
-       var type = indivString["type"];
-       var unfiltered = indivString["unfiltered"];
-       var id = indivString["id"];
-       //finish parsing, do some other stuff.
-       if (firstValue==true){
-         console.log("CURRENT BLOOD SUGAR VALUE IS "+sgv);
-         //send notification test!
-         //createNotif(sgv);
-       }
-     }*/
-    //}
 }
 
-function manipulateURL(urlObj) {
+function manipulateURL(urlObj,count) {
     var siteUrlBase = Object.values(urlObj)[0];
     //check if it starts with https/http and manipulate accordingly
     if (siteUrlBase.startsWith("https://") || siteUrlBase.startsWith("http://")) {
@@ -549,7 +525,7 @@ function manipulateURL(urlObj) {
         //no slash, add one.
         siteUrlBase = siteUrlBase + "/";
     }
-    siteUrlBase = siteUrlBase + 'api/v1/entries.json?count=';
+    siteUrlBase = siteUrlBase + 'api/v1/entries.json?count='+count;
     //console.log("URL IS "+siteUrlBase); 
     //return url with correct values.
     return siteUrlBase;
@@ -663,44 +639,48 @@ function profileWebRequest(profileURL, callbackFunctionWeb) {
     xhr.send(null);
 }
 
-function webRequest(callbackFunc) {
+function webRequest(callbackFunc,fullChart) {
     //we need a couple of variables. first of all, get the site URL.
     chrome.storage.local.get(['siteUrl'], function(siteData) {
-        var siteUrlBase = manipulateURL(siteData);
+        var siteUrlBase
+        if(fullChart == true){
+          siteUrlBase = manipulateURL(siteData,289);
+        }else{
+          siteUrlBase = manipulateURL(siteData,1);
+        }
         //now, we need to see how much data we're supposed to load.
-        chrome.storage.local.get(['dataAmount'], function(dataData) {
-            //yes... the data has data.
-            var getNumber = Object.values(dataData);
-            var xhr = new XMLHttpRequest();
-            if (getNumber) {
-                xhr.open("GET", siteUrlBase + getNumber, true);
-            } else {
-                xhr.open("GET", siteUrlBase + 7, true);
-            }
-            xhr.onload = function(e) {
-                if (xhr.readyState === 4) {
-                    if (xhr.status === 200) {
-                        //console.log(xhr.responseText);
-                        //everything is done. now, get the profile data and set to mgdl/mmol.
-                        var profileURLBase = manipulateProfileURL(siteData);
-                        profileWebRequest(profileURLBase, function() {
-                            console.log("PARSING DATA!");
-                            parseData(xhr.responseText, callbackFunc);
-                        });
-                        // we are done. find a way to callback after all the data, too.
-                    } else {
-                        webError();
+        //yes... the data has data.
+        var xhr = new XMLHttpRequest();
+            xhr.open("GET", siteUrlBase, true);
+        xhr.onload = function(e) {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    //console.log(xhr.responseText);
+                    //everything is done. now, get the profile data and set to mgdl/mmol.
+                    if(fullChart == true){
+                      //since it's the full chart, just return the data ASAP!; 
+                      if(callbackFunc){
+                        callbackFunc(xhr.responseText);
+                      }
+                    }else{
+                      var profileURLBase = manipulateProfileURL(siteData);
+                      profileWebRequest(profileURLBase, function() {
+                          console.log("PARSING DATA!");
+                          parseData(xhr.responseText, callbackFunc);
+                      });
                     }
+                    // we are done. find a way to callback after all the data, too.
+                } else {
+                    webError();
                 }
-            };
-            xhr.onerror = function(e) {
-                //console.error(xhr.statusText);
-                webError();
-            };
-            xhr.send(null);
-        });
-
+            }
+        };
+        xhr.onerror = function(e) {
+            //console.error(xhr.statusText);
+            webError();
+        };
+        xhr.send(null);
     });
 }
 
-setInterval(webRequest, minuteVal * 60 * 1000);
+setInterval(webRequest, secondVal * 1000);
