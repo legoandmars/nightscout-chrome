@@ -1,63 +1,71 @@
-  <!DOCTYPE html>
-  <html>
-    <head>
+<!DOCTYPE html>
+<html>
+   <head>
       <link rel="stylesheet" href="popup.css">
-    </head>
-    <body>
-      <div class="mouseOverDiv"> 
-        <p class="mouseOverBGV">BG: 888</p>
-        <p class="mouseOverTime">Time:</p>
-        <p class="mouseOverTimeValue">2:69PM</p>
+   </head>
+   <body>
+      <div class="mouseOverDiv">
+         <p class="mouseOverBGV">BG: 888</p>
+         <p class="mouseOverTime">Time:</p>
+         <p class="mouseOverTimeValue">2:69PM</p>
       </div>
       <div class="background">
-        <div class = "mainTextHolder">
-          <p class="mainText">N/A</p>
-          <img src="arrows/0.png" class="arrowImage"></img>
-        </div>
-        <button class="gear">
-          <img src="images/gear.png" class="gearImage"></img>
-        </button>
-
-        <button class="nightscoutButton">
-        <img src="images/nightscout128gray.png" class="nightscoutGray">
-        </button>
-        
-        <p class="errorText"></p>
-        <div class="fullDeltaValue">
-          <p class="fullDeltaLabel">mg/dl</p>
-          <div class="fullInnerDeltaDisplay">
-           <p class="fullInnerDeltaLabel">+0</p>
-          </div>
-        </div>
-        <button class="hourButton" id="halfhour"><p class="buttonText">30M</p></button>
-        <button class="hourButtonPressed" id="twohour"><p>2HR</p></button>
-        <button class="hourButtonPressed" id="sixhour"><p>6HR</p></button>
-        <button class="hourButtonPressed" id="twelvehour"><p>12H</p></button>
-        <button class="hourButtonPressed" id="twentyfourhour"><p>24H</p></button>
-        <div class = "chartBackground"> 
-          <div class="innerChart">
-            <div class="lines">
-              <div class="verticalLine"></div>
-              <div class="horizontal_dotted_line" id="line400"></div>
-              <div class="horizontal_dotted_line" id="line340"></div>
-              <div class="horizontal_dotted_line" id="line280"></div>
-              <div class="horizontal_dotted_line" id="line220"></div>
-              <div class="horizontal_dotted_line" id="line160"></div>
-              <div class="horizontal_dotted_line" id="line100"></div>
-              <div class="horizontal_dotted_line" id="line40"></div>
+         <div class = "mainTextHolder">
+            <p class="mainText">N/A</p>
+            <img src="arrows/0.png" class="arrowImage"></img>
+         </div>
+         <button class="gear">
+         <img src="images/gear.png" class="gearImage"></img>
+         </button>
+         <button class="nightscoutButton">
+         <img src="images/nightscout128gray.png" class="nightscoutGray">
+         </button>
+         <p class="errorText"></p>
+         <div class="fullDeltaValue">
+            <p class="fullDeltaLabel">mg/dl</p>
+            <div class="fullInnerDeltaDisplay">
+               <p class="fullInnerDeltaLabel">+0</p>
             </div>
-          </div>
-          <p class="chartMarkers" id="text400">400</p>
-          <p class="chartMarkers" id="text340">340</p>
-          <p class="chartMarkers" id="text280">280</p>
-          <p class="chartMarkers" id="text220">220</p>
-          <p class="chartMarkers" id="text160">160</p>
-          <p class="chartMarkers" id="text100">100</p>
-          <p class="chartMarkers" id="text40"> 40</p>
-          <p class="dateMarkers" id="date1">6:00 PM</p>
-          <p class="dateMarkers" id="date2">6:25 PM</p>
-        </div>
+         </div>
+         <button class="hourButton" id="halfhour">
+            <p class="buttonText">30M</p>
+         </button>
+         <button class="hourButtonPressed" id="twohour">
+            <p>2HR</p>
+         </button>
+         <button class="hourButtonPressed" id="sixhour">
+            <p>6HR</p>
+         </button>
+         <button class="hourButtonPressed" id="twelvehour">
+            <p>12H</p>
+         </button>
+         <button class="hourButtonPressed" id="twentyfourhour">
+            <p>24H</p>
+         </button>
+         <div class = "chartBackground">
+            <div class="innerChart">
+               <div class="lines">
+                  <div class="verticalLine"></div>
+                  <div class="horizontal_dotted_line" id="line400"></div>
+                  <div class="horizontal_dotted_line" id="line340"></div>
+                  <div class="horizontal_dotted_line" id="line280"></div>
+                  <div class="horizontal_dotted_line" id="line220"></div>
+                  <div class="horizontal_dotted_line" id="line160"></div>
+                  <div class="horizontal_dotted_line" id="line100"></div>
+                  <div class="horizontal_dotted_line" id="line40"></div>
+               </div>
+            </div>
+            <p class="chartMarkers" id="text400">400</p>
+            <p class="chartMarkers" id="text340">340</p>
+            <p class="chartMarkers" id="text280">280</p>
+            <p class="chartMarkers" id="text220">220</p>
+            <p class="chartMarkers" id="text160">160</p>
+            <p class="chartMarkers" id="text100">100</p>
+            <p class="chartMarkers" id="text40"> 40</p>
+            <p class="dateMarkers" id="date1">6:00 PM</p>
+            <p class="dateMarkers" id="date2">6:25 PM</p>
+         </div>
       </div>
       <script src="popup.js"></script>
-    </body>
-  </html>
+   </body>
+</html>

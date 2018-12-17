@@ -1,70 +1,69 @@
-  <!DOCTYPE html>
-  <html>
-	  <head>
-	  <link rel="stylesheet" href="settings.css">
-	  </head>
-	  <body>
-		  <div class="background">
-		  	<div class="header">		  	
-		  		<img src="/../images/nightscout128.png" class="nightscoutLogo">
-		  		</img>
-		  		<button class="backButton" id = "backButton">
-		  		<img src="/../arrows/back.png" class="backArrow"></img>
-		  		</button>
-		  		<p class="settingsHeader">Settings</p>
-			</div>
-			<div class="mainContainer">
-				<div class="backgroundBlack">
-					<div class="innerContainer">
-						<div class="backgroundContainer">
-							<div class="innerBackground">
-								<input type="checkbox" name="urgentLowEnabled" class="enabledBox" id="urgentLowEnabled"><br>	
-								<p class="enabledText">Enabled:</p>
-								<textarea name="urgentLowAlertValue" rows="1" cols="5" placeholder="40" id="urgentLowAlertValue" class="alertValue"></textarea>
-							</div>
-							<p class="alertText" id="urgentLowAlertText">Urgent Low Alert Value:</p>
-						</div>	
-						<div class="backgroundContainer">
-							<div class="innerBackground">
-								<p class="enabledText">Enabled:</p>
-								<input type="checkbox" name="lowEnabled" class="enabledBox" id="lowEnabled"><br>
-								<textarea name="lowAlertValue" rows="1" cols="5" placeholder="70" id="lowAlertValue" class="alertValue"></textarea>
-							</div>
-							<p class="alertText">Low Alert Value:</p>
-						</div>
-						<div class="backgroundContainer">
-							<div class="innerBackground">
-								<p class="enabledText">Enabled:</p>
-								<input type="checkbox" name="highEnabled" class="enabledBox" id="highEnabled"><br>
-								<textarea name="highAlertValue" rows="1" cols="5" placeholder="70" id="highAlertValue" class="alertValue"></textarea>
-							</div>
-							<p class="alertText">High Alert Value:</p>
-						</div>
-						<div class="backgroundContainer">
-							<div class="innerBackground">
-								<p class="enabledText">Enabled:</p>
-								<input type="checkbox" name="urgentHighEnabled" class="enabledBox" id="urgentHighEnabled"><br>
-								<textarea name="urgentHighAlertValue" rows="1" cols="5" placeholder="70" id="urgentHighAlertValue" class="alertValue"></textarea>
-							</div>
-							<p class="alertText">Urgent High Alert Value:</p>
-						</div>
-						<div class="backgroundContainer">
-							<div class="innerBackground">
-								<p class="enabledText" id="alarmMinuteText">minutes</p>
-								<textarea name="alarmSnoozeLength" rows="1" cols="5" placeholder="70" id="alarmSnoozeLength" class="alertValue"></textarea>
-							</div>
-							<p class="alertText">Alarm Snooze Length:</p>
-						</div>
-					</div>
-				</div>
-
-				<p class="siteUrlText">Nightscout Site URL:</p>
-				<textarea name="siteURL" class="siteURL" id="siteURL" rows="1" cols="20" placeholder="http://test.herokuapp.com/"></textarea>
-				<div class="bottomDiv">
-					<button class="submitButton">Save</button>
-				</div>
-			</div>
-		  </div>
-		<script src="settings.js"></script>
-	  </body>
-  </html>
+<!DOCTYPE html>
+<html>
+   <head>
+      <link rel="stylesheet" href="settings.css">
+   </head>
+   <body>
+      <div class="background">
+         <div class="header">
+            <img src="/../images/nightscout128.png" class="nightscoutLogo">
+            </img>
+            <button class="backButton" id = "backButton">
+            <img src="/../arrows/back.png" class="backArrow"></img>
+            </button>
+            <p class="settingsHeader">Settings</p>
+         </div>
+         <div class="mainContainer">
+            <div class="backgroundBlack">
+               <div class="innerContainer">
+                  <div class="backgroundContainer">
+                     <div class="innerBackground">
+                        <input type="checkbox" name="urgentLowEnabled" class="enabledBox" id="urgentLowEnabled"><br>	
+                        <p class="enabledText">Enabled:</p>
+                        <textarea name="urgentLowAlertValue" rows="1" cols="5" placeholder="40" id="urgentLowAlertValue" class="alertValue"></textarea>
+                     </div>
+                     <p class="alertText" id="urgentLowAlertText">Urgent Low Alert Value:</p>
+                  </div>
+                  <div class="backgroundContainer">
+                     <div class="innerBackground">
+                        <p class="enabledText">Enabled:</p>
+                        <input type="checkbox" name="lowEnabled" class="enabledBox" id="lowEnabled"><br>
+                        <textarea name="lowAlertValue" rows="1" cols="5" placeholder="70" id="lowAlertValue" class="alertValue"></textarea>
+                     </div>
+                     <p class="alertText">Low Alert Value:</p>
+                  </div>
+                  <div class="backgroundContainer">
+                     <div class="innerBackground">
+                        <p class="enabledText">Enabled:</p>
+                        <input type="checkbox" name="highEnabled" class="enabledBox" id="highEnabled"><br>
+                        <textarea name="highAlertValue" rows="1" cols="5" placeholder="70" id="highAlertValue" class="alertValue"></textarea>
+                     </div>
+                     <p class="alertText">High Alert Value:</p>
+                  </div>
+                  <div class="backgroundContainer">
+                     <div class="innerBackground">
+                        <p class="enabledText">Enabled:</p>
+                        <input type="checkbox" name="urgentHighEnabled" class="enabledBox" id="urgentHighEnabled"><br>
+                        <textarea name="urgentHighAlertValue" rows="1" cols="5" placeholder="70" id="urgentHighAlertValue" class="alertValue"></textarea>
+                     </div>
+                     <p class="alertText">Urgent High Alert Value:</p>
+                  </div>
+                  <div class="backgroundContainer">
+                     <div class="innerBackground">
+                        <p class="enabledText" id="alarmMinuteText">minutes</p>
+                        <textarea name="alarmSnoozeLength" rows="1" cols="5" placeholder="70" id="alarmSnoozeLength" class="alertValue"></textarea>
+                     </div>
+                     <p class="alertText">Alarm Snooze Length:</p>
+                  </div>
+               </div>
+            </div>
+            <p class="siteUrlText">Nightscout Site URL:</p>
+            <textarea name="siteURL" class="siteURL" id="siteURL" rows="1" cols="20" placeholder="http://test.herokuapp.com/"></textarea>
+            <div class="bottomDiv">
+               <button class="submitButton">Save</button>
+            </div>
+         </div>
+      </div>
+      <script src="settings.js"></script>
+   </body>
+</html>

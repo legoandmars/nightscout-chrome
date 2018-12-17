@@ -1,165 +1,179 @@
-.background{
-	background-color:black;
-	width:300px;
-	height:370px;
+.background {
+	background-color: black;
+	width: 300px;
+	height: 370px;
 }
+
 body {
-  background-color: #000000;
+	background-color: #000000;
 }
-.nightscoutLogo{
-	height:75px;
-	width:75px;
-	position:absolute;
-	top:15px;
-	left:30px;
 
+.nightscoutLogo {
+	height: 75px;
+	width: 75px;
+	position: absolute;
+	top: 15px;
+	left: 30px;
 }
-.header{
-	width:100%;
-	height:90px;
+
+.header {
+	width: 100%;
+	height: 90px;
 }
-.settingsHeader{
+
+.settingsHeader {
 	font-family: 'Ubuntu', Verdana, Helvetica, Arial, sans-serif;
-	font-size:40px;
-	color:white;
-	position:absolute;
-	top:-10px;
-	left:100px;
+	font-size: 40px;
+	color: white;
+	position: absolute;
+	top: -10px;
+	left: 100px;
 }
-.backButton{
-	background-color:black;
+
+.backButton {
+	background-color: black;
 	border: none;
-	width:32px;
-	height:32px;
-}
-.backArrow{
-	width:32px;
-	height:32px;
-	position:absolute;
-	left:8px;
-	top:8px;
-}
-.mainContainer{
-	width:102%;
-	position:absolute;
-	left:-8px;
-	height:320px;
-	background-color:#111111;
-}
-.siteUrlText{
-	font-family: 'Ubuntu', Verdana, Helvetica, Arial, sans-serif;
-	color:gray;
-	position:absolute;
-	left:20px;
-	font-size:15px;
-	top:-10px;
+	width: 32px;
+	height: 32px;
 }
 
-.alertValue{
-	width:50px;
+.backArrow {
+	width: 32px;
+	height: 32px;
+	position: absolute;
+	left: 8px;
+	top: 8px;
+}
+
+.mainContainer {
+	width: 102%;
+	position: absolute;
+	left: -8px;
+	height: 320px;
+	background-color: #111111;
+}
+
+.siteUrlText {
+	font-family: 'Ubuntu', Verdana, Helvetica, Arial, sans-serif;
+	color: gray;
+	position: absolute;
+	left: 20px;
+	font-size: 15px;
+	top: -10px;
+}
+
+.alertValue {
+	width: 50px;
 	text-align: center;
-	top:1px;
-	left:0px;
+	top: 1px;
+	left: 0px;
 }
 
-.alertText{
+.alertText {
 	font-family: 'Ubuntu', Verdana, Helvetica, Arial, sans-serif;
-	color:gray;
-	position:absolute;
-	font-size:15px;
-	width:100%;
-	top:-15px;
+	color: gray;
+	position: absolute;
+	font-size: 15px;
+	width: 100%;
+	top: -15px;
 	text-align: center;
 	display: inline-block;
 }
 
-.enabledText{
+.enabledText {
 	font-family: 'Ubuntu', Verdana, Helvetica, Arial, sans-serif;
-	color:gray;
-	position:absolute;
-	left:60px;
-	font-size:15px;
-	top:-12px;
-}
-.enabledBox{
-	position:absolute;
-	left:125px;
-	top:4px;
+	color: gray;
+	position: absolute;
+	left: 60px;
+	font-size: 15px;
+	top: -12px;
 }
 
+.enabledBox {
+	position: absolute;
+	left: 125px;
+	top: 4px;
+}
 
 textarea {
-    white-space: nowrap;
-    overflow:    hidden;
-    overflow-y:  hidden;
-    overflow-x:  hidden;
-    resize:none;
-    background-color:black;
-    font-family: 'Ubuntu', Verdana, Helvetica, Arial, sans-serif;
-    overflow:    -moz-scrollbars-horizontal;
-    position:absolute;
-    width:250px;
-    left:20px;
-    top:30px;
-    border-radius:5px;
-    border-width:1.5px;
-    border-color:grey;
-    color:white;
-}
-.backgroundBlack{
-	border-radius:8px;
-	background-color:#090909;
-	height:190px;
-	width:93%;
-	position:absolute;
-	left:15px;
-	top:55px;
-}
-.innerContainer{
-width: 100%;
-height: 100%;
-position: relative;
-overflow-y: auto;
-}
-.submitButton{
-	width:60px;
-	height:30px;
-	position: relative;
-	top:5px;
-	display: block;
-	background-color:black;
-	border-radius:8px;
-	margin: auto;
+	white-space: nowrap;
+	overflow: hidden;
+	overflow-y: hidden;
+	overflow-x: hidden;
+	resize: none;
+	background-color: black;
 	font-family: 'Ubuntu', Verdana, Helvetica, Arial, sans-serif;
-	color:white;
-	text-align:center;
-	font-size:18px; 
-	border-color:grey;
+	overflow: -moz-scrollbars-horizontal;
+	position: absolute;
+	width: 250px;
+	left: 20px;
+	top: 30px;
+	border-radius: 5px;
+	border-width: 1.5px;
+	border-color: grey;
+	color: white;
 }
 
-.backgroundContainer{
+.backgroundBlack {
+	border-radius: 8px;
+	background-color: #090909;
+	height: 190px;
+	width: 93%;
+	position: absolute;
+	left: 15px;
+	top: 55px;
+}
+
+.innerContainer {
+	width: 100%;
+	height: 100%;
+	position: relative;
+	overflow-y: auto;
+}
+
+.submitButton {
+	width: 60px;
+	height: 30px;
+	position: relative;
+	top: 5px;
+	display: block;
+	background-color: black;
+	border-radius: 8px;
+	margin: auto;
+	font-family: 'Ubuntu', Verdana, Helvetica, Arial, sans-serif;
+	color: white;
+	text-align: center;
+	font-size: 18px;
+	border-color: grey;
+}
+
+.backgroundContainer {
 	z-index: 99;
 	position: relative;
 	width: 100%;
-	height:45px;
+	height: 45px;
 }
-.innerBackground{
-	width:48%;
+
+.innerBackground {
+	width: 48%;
 	height: 25px;
-	top:19px;
+	top: 19px;
 	position: relative;
 	display: block;
-	margin:auto;
+	margin: auto;
 }
-.bottomDiv{
+
+.bottomDiv {
 	width: 100%;
 	height: 45px;
 	position: absolute;
-	top:245px;
+	top: 245px;
 }
-#alarmSnoozeLength{
+
+#alarmSnoozeLength {
 	left: 8px;
 }
-#alarmMinuteText{
-	left:68px;
+
+#alarmMinuteText {
+	left: 68px;
 }
