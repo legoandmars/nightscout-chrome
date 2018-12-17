@@ -1,76 +1,90 @@
-var defaultSite = '';
 var minuteVal = .05;
 var addToUrl = '/api/v1/entries.json?count=';
-var defaultUrgentLowValue = 55;
-var defaultLowValue = 80;
-var defaultHighValue = 180;
-var defaultUrgentHighValue = 260;
-var snoozeMinutesDefault = 30;
 var urgentLowValue;
 var lowValue;
 var highValue;
 var urgentHighValue;
 var refreshGraphFunc;
 
-function firstInstallFunction(bytes) {
-    console.log(bytes + " BYTES IN USE");
-    if (bytes == 0) {
-        //since there's no data, NOW we can do this.
-        chrome.storage.local.set({
-            siteUrl: defaultSite
-        }, function() {
-            console.log('The default site has been set as ' + defaultSite);
-        });
-        chrome.storage.local.set({
-            bsTable: "dne"
-        }, function() {
-            console.log('BS values have been set to dne (default)');
-        });
-        chrome.storage.local.set({
-            dataAmount: 7
-        }, function() {
-            console.log('Amount of data has been set to 7 (30 minutes) (default) ');
-        });
-        //{ {number,enabled(t/f, t by default) } }
-        //goes in order of: urgent low, low, high, urgent high.
-        chrome.storage.local.set({
-            alarmValues: [
-                [defaultUrgentLowValue, true],
-                [defaultLowValue, true],
-                [defaultHighValue, true],
-                [defaultUrgentHighValue, true]
-            ]
-        }, function() {
-            console.log('Amount of data has been set to 7 (30 minutes) (default) ');
-        });
-        chrome.storage.local.set({
-            lastAlarmName: "dne"
-        }, function() {
-            console.log('Last Alarm Variable created!');
-        });
-        chrome.storage.local.set({
-            snoozeUnix: "dne"
-        }, function() {
-            //snoozeunix is an amazing variable name and you can't convince me otherwise
-        });
-        chrome.storage.local.set({
-            snoozeMinutes: snoozeMinutesDefault
-        }, function() {});
-        chrome.storage.local.set({
-            unitValue: "mgdl"
-        }, function() {});
+//default variables
+var defaultSite = '';
+var defaultUrgentLowValue = 55;
+var defaultLowValue = 80;
+var defaultHighValue = 180;
+var defaultUrgentHighValue = 260;
+var snoozeMinutesDefault = 30;
+//array of ALL storage --important
+var storageArray = [{
+        siteUrl: defaultSite
+    }, {
+        bsTable: "dne"
+    }, {
+        dataAmount: 7
+    }, {
+        alarmValues: [
+            [defaultUrgentLowValue, true],
+            [defaultLowValue, true],
+            [defaultHighValue, true],
+            [defaultUrgentHighValue, true]
+        ]
+    },
+    {
+        lastAlarmName: "dne"
+    }, {
+        snoozeUnix: "dne"
+    }, {
+        snoozeMinutes: snoozeMinutesDefault
+    }, {
+        unitValue: "mgdl"
     }
+];
+var storageInc = 0; //used for looping through storage
+
+function saveStorageData(callbackFunction){
+  chrome.storage.local.get(storageArray[storageInc], function(data){
+    chrome.storage.local.getBytesInUse(Object.keys(data), function(bytes){
+      //console.log(bytes+"BYTES")
+      if(bytes==0){
+        //does not exist. make sure to set default.
+        chrome.storage.local.set(storageArray[storageInc], function(){
+          console.log("SET "+Object.keys(storageArray[storageInc])+" TO "+Object.values(storageArray[storageInc]));
+          storageInc++;
+          if(storageInc < storageArray.length){
+            //do it again.
+            saveStorageData(callbackFunction)
+          }else{
+            if(callbackFunction){
+              //go back to loaddefaultvariables function.
+              callbackFunction();
+            }
+          }
+        });
+      }else{
+        //add 1 anyways.. we still need to go up
+        storageInc++; 
+        if(storageInc < storageArray.length){
+          //do it again.
+          saveStorageData(callbackFunction)
+        }else{
+          if(callbackFunction){
+            //go back to loaddefaultvariables function.
+            callbackFunction();
+          }
+        }
+      }
+    });
+  });
 }
 
-function getLocalBytes(settings) {
-    var keys = Object.keys(settings);
-    chrome.storage.local.getBytesInUse(keys, firstInstallFunction);
+function loadDefaultVariables(){
+  saveStorageData(function(){
+    console.log("Extension done with initial load!");
+  })
 }
-
 
 chrome.runtime.onInstalled.addListener(function() {
     //note: please clean this code up >_>
-    chrome.storage.local.get(["siteUrl", "bsTable", "dataAmount", "alarmValues", "lastAlarmName", "snoozeUnix", "snoozeMinutes", "unitValue"], getLocalBytes);
+    loadDefaultVariables();
 });
 //get data from nightscout!
 //https://test.herokuapp.com/api/v1/entries <- link stuff
@@ -521,7 +535,6 @@ function parseData(response, callbackFunc) {
 
 function manipulateURL(urlObj) {
     var siteUrlBase = Object.values(urlObj)[0];
-    console.log(siteUrlBase);
     //check if it starts with https/http and manipulate accordingly
     if (siteUrlBase.startsWith("https://") || siteUrlBase.startsWith("http://")) {
         //it starts with https/http, we should be good.
