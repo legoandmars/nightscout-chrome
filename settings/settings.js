@@ -152,14 +152,8 @@ function getCheckValue(stringName) {
     return getCheck;
 }
 
-function alertFunc(errCd) {
-    var message = "whoops you shouldn't be seeing this"
-    if (errCd == 1) {
-        message = "ERROR: Invalid Number.";
-    } else if (errCd = 2) {
-        message = "ERROR: Invalid Site URL.";
-    }
-    alert(message);
+function alertFunc(customMessage) {    
+    alert(customMessage);
 }
 
 function saveFunction() {
@@ -180,6 +174,10 @@ function saveFunction() {
         console.log(uLSaved, lSaved, hSaved, uHSaved);
         //double check that they're all actual 
         if (uLSaved != false && lSaved != false && hSaved != false && uHSaved != false) {
+        	if(uLSaved < lSaved){}else{alertFunc("ERROR: Urgent low alert value must be below the low alert value."); return;}
+        	if(uHSaved > hSaved){}else{alertFunc("ERROR: Urgent high alert value must be above the high alert value."); return;}
+        	if(lSaved < hSaved){}else{alertFunc("ERROR: Low alert value must be below the high alert value."); return;}
+        	//make sure low values and high values are correct.
             //now, parse the site url and see if it's a real site.
             getURLText(function(returnVal) {
                 if (returnVal != false) {
@@ -208,12 +206,12 @@ function saveFunction() {
                         });
                     });
                 } else {
-                    alertFunc(2);
+                    alertFunc("ERROR: Invalid Site URL.");
                 }
             });
         } else {
             //whoopsies, we got some bad data owo
-            alertFunc(1);
+            alertFunc("ERROR: Invalid Number.");
         }
     });
 }

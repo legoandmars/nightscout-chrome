@@ -38,6 +38,10 @@ var storageArray = [{
         unitValue: "mgdl"
     }, {
         tempBsTable: "dne"
+    }, {
+        gottenProfileAlarms: false
+    }, {
+        lastProfileUrl: "" 
     }
 ];
 var storageInc = 0; //used for looping through storage
@@ -81,6 +85,7 @@ function saveStorageData(callbackFunction){
 function loadDefaultVariables(){
   saveStorageData(function(){
     console.log("Extension done with initial load!");
+    webRequest();
   })
 }
 
@@ -169,8 +174,8 @@ function notificationFunction(bgValue, dateValue, valueText, unitType) {
                 if (snoozeVal == false) {
                     if (dateValue.toString() != lastAlarmString) {
                         //now double check that it hasn't been snoozed recently
-                        console.log(dateValue.toString())
-                        console.log(lastAlarmString);
+                        //console.log(dateValue.toString())
+                        //console.log(lastAlarmString);
                         //indeed a new data point!
                         var urgentLowValueTemp = urgentLowValue[0];
                         var urgentHighValueTemp = urgentHighValue[0];
@@ -272,8 +277,8 @@ function stopSnooze() {
 function checkBSvariables(callbackFunc) {
     chrome.storage.local.get(['alarmValues'], function(result) {
         var alarmValues = Object.values(result)
-        console.log(alarmValues);
-        console.log("ARE ALARM VALUES");
+        //console.log(alarmValues);
+        //console.log("ARE ALARM VALUES");
         if (alarmValues) {
             var urgentLowData = alarmValues[0][0];
             var lowData = alarmValues[0][1];
@@ -285,7 +290,7 @@ function checkBSvariables(callbackFunc) {
                 lowValue = lowData;
                 highValue = highData;
                 urgentHighValue = urgentHighData;
-                console.log("Alarm data has been changed!");
+                //console.log("Alarm data has been changed!");
                 //getData();
                 //saveFunc("pushNotifications");
                 if (callbackFunc) {
@@ -299,7 +304,7 @@ function checkBSvariables(callbackFunc) {
 
 function clearNotifications(lastAlarmRaw) {
     chrome.notifications.clear("nightscout-alert", function() {
-        console.log("cleared notification, boss");
+        //console.log("cleared notification, boss");
         //now, set last to nothing.
         //chrome.storage.local.set({lastAlarmName: "dne"}, function() {
         //  console.log('Last Alarm Variable created!');
@@ -351,7 +356,7 @@ function bsColors(bgValue, unitType) {
     if (unitType == "mmol") {
         lowValueTemp = mgdlToMMOL(lowValueTemp);
         highValueTemp = mgdlToMMOL(highValueTemp);
-        console.log("COLORS YEET");
+        //console.log("COLORS YEET");
         //it's mmol, so we have to convert the lowvalues. 
     }
     var customColor = "gray";
@@ -373,12 +378,12 @@ function bsColors(bgValue, unitType) {
 }
 
 function saveFunc(responseData, callbackFunc) {
-    console.log("SAVE FUNC ENABLED!");
+    //console.log("SAVE FUNC ENABLED!");
     //before saving, check BG vals.
     //var convertedString = JSON.stringify(responseData);
     chrome.storage.local.get(['tempBsTable'], function(result) {
         //data needs to be updated!
-        console.log("Updating data!");
+        //console.log("Updating data!");
         /* if(responseData.toString() == "pushNotifications"){
            //only push notifications!
            var tempTest = Object.values(result);
@@ -400,11 +405,11 @@ function saveFunc(responseData, callbackFunc) {
                     checkBSvariables(function() {
                         //bsAlerts(tempBG,tempDate,true);
                         //change bg vals.
-                        console.log("CURRENT IS " + tempBG);
+                        console.log("Current blood sugar is: " + tempBG);
                         bsColors(tempBG, unitType);
                     });
                 }
-                console.log("It's fine - data is already correct.")
+                //console.log("No change in data.")
                 //still, double check!
             } else {
                 console.log("Saving Data!");
@@ -421,7 +426,7 @@ function saveFunc(responseData, callbackFunc) {
                         }
                         //run more after-save code here.
                         forceRefreshGraph();
-                        console.log('Value succesfully set.');
+                        //console.log('Value succesfully set.');
                         //do low, high alerts too!
                         var currentDATA = returnCurrentBG(responseData, false, true, unitType);
                         currentBG = currentDATA[0];
@@ -429,17 +434,15 @@ function saveFunc(responseData, callbackFunc) {
                         currentDate = currentDATA[1];
                         if (currentBG != false) {
                             //currentBG = 70;
-                            console.log(currentBG);
+                            //console.log(currentBG);
                             //set icon
                             //note: add custom alert vars.
-                            chrome.storage.local.get(['bsTable'], function(result) {
-                                //not only does this control low/high alerts, but also the colors of the program.
-                                //get alarmValues
-                                checkBSvariables(function() {
-                                    //now that variables are set, do alerts and colors.
-                                    bsAlerts(currentBG, currentDate, unitType);
-                                    bsColors(currentBG, unitType);
-                                });
+                            //not only does this control low/high alerts, but also the colors of the program.
+                            //get alarmValues
+                            checkBSvariables(function() {
+                                //now that variables are set, do alerts and colors.
+                                bsAlerts(currentBG, currentDate, unitType);
+                                bsColors(currentBG, unitType);
                             });
                         }
                       });
@@ -483,7 +486,7 @@ function returnCurrentBG(data, notif, returnDate, unitType) {
             if (unitType == "mmol") {
                 //mmol, convert!
                 sgv = mgdlToMMOL(sgv);
-                console.log("MMOL VERSION IS " + sgv);
+                //console.log("MMOL VERSION IS " + sgv);
             } else if (unitType == "mgdl") {
                 //mgdl, make sure to change to number
                 sgv = Number(sgv);
@@ -505,8 +508,6 @@ function parseData(response, callbackFunc) {
     } else {
         saveFunc(response);
     }
-    //var parsed = JSON.parse(response);
-    console.log("SUCCESSFUL, PARSING DATA NOW!");
 }
 
 function manipulateURL(urlObj,count) {
@@ -533,7 +534,7 @@ function manipulateURL(urlObj,count) {
 
 function manipulateProfileURL(urlObj) {
     var siteUrlBase = Object.values(urlObj)[0];
-    console.log(siteUrlBase);
+    //console.log(siteUrlBase);
     //check if it starts with https/http and manipulate accordingly
     if (siteUrlBase.startsWith("https://") || siteUrlBase.startsWith("http://")) {
         //it starts with https/http, we should be good.
@@ -548,7 +549,7 @@ function manipulateProfileURL(urlObj) {
         //no slash, add one.
         siteUrlBase = siteUrlBase + "/";
     }
-    siteUrlBase = siteUrlBase + 'api/v1/profile';
+    siteUrlBase = siteUrlBase + 'api/v1/status.json';
     //console.log("URL IS "+siteUrlBase); 
     //return url with correct values.
     return siteUrlBase;
@@ -558,6 +559,52 @@ function webError() {
     console.log("ERROR! SITE DOES NOT EXIST!");
 }
 
+function alarmProfileFunction2(alarmTempArray,callbackFunc){
+  chrome.storage.local.get(['gottenProfileAlarms'], function(gottenResult){
+  var gottenValue = Object.values(gottenResult)[0];
+    if(gottenValue == false){
+      console.log("Pulling alarm data from the Nightscout site!");
+      chrome.storage.local.set({alarmValues: alarmTempArray}, function(){
+        //set old profile url too!
+        console.log("GETTING ALARM VALUES FROM NIGHTSCOUT!");
+        chrome.storage.local.set({gottenProfileAlarms: true}, function(){
+          if (callbackFunc) {
+            callbackFunc();
+          }
+        });
+      });
+    }else{
+      //console.log("SORRY, WE'VE GOTTEN IT.");
+      if (callbackFunc) {
+        callbackFunc();
+      }
+    }
+  });
+}
+
+function alarmProfileFunction(alarmTempArray,callbackFunc){
+  //get to see if changed from default site stuff yet;
+  //NOTE: IF PROFILE URL SAVED VALUE IS DIFFERENT, RESET THE VALUESS OF gottenProfileAlarms!
+  chrome.storage.local.get(['lastProfileUrl'], function(lastProfileURLResult){
+    var profileUrlValue = Object.values(lastProfileURLResult)[0];
+    chrome.storage.local.get(['siteUrl'], function(siteUrlResult){
+      var siteUrlValue = Object.values(siteUrlResult)[0];
+      if(profileUrlValue == siteUrlValue){
+        alarmProfileFunction2(alarmTempArray,callbackFunc);
+        //nothing has changed. the url is still the same.
+      }else{
+        //it has changed. set the new profile url, and set gottenProfileAlarms to false.
+        chrome.storage.local.set({gottenProfileAlarms: false}, function(){
+          //it has been set to false.
+          chrome.storage.local.set({lastProfileUrl: siteUrlValue}, function(){
+            //new profile url set.
+            alarmProfileFunction2(alarmTempArray,callbackFunc);
+          });
+        });
+      }
+    });
+  });
+}
 function profileWebRequest(profileURL, callbackFunctionWeb) {
     var defaultUnit = "mgdl";
     var unit;
@@ -568,63 +615,54 @@ function profileWebRequest(profileURL, callbackFunctionWeb) {
             if (xhr.status === 200) {
                 //we got the data, boys!
                 var webData = JSON.parse(xhr.responseText);
-                console.log("WE GOT SOME PROFILE DATA:");
-                var dataLength = Object.values(webData[0]).length;
-                var defaultProfileName;
-                var profileStorage;
-                for (i = 0; i < dataLength; i++) {
-                    if (Object.keys(webData[0])[i] == "defaultProfile") {
-                        //we found the default profile - get the value!;
-                        defaultProfileName = Object.values(webData[0])[i];
-                    } else if (Object.keys(webData[0])[i] == "store") {
-                        profileStorage = Object.values(webData[0])[i];
-                    }
-                }
-                console.log(" PROFILE DATA STORAGE: ")
-                console.log(profileStorage);
-                var profileDataLength = Object.values(profileStorage).length;
-                console.log(profileDataLength);
-                var defaultProfileData;
-                for (i = 0; i < profileDataLength; i++) {
-                    if (Object.keys(profileStorage)[i] == defaultProfileName) {
-                        //we found the default profile - get the value!;
-                        defaultProfileData = Object.values(profileStorage)[i]
-                        console.log("WE FOUND IT!");
-                    }
-                }
-                var profileDataLengthInner = Object.values(defaultProfileData).length;
-                for (i = 0; i < profileDataLengthInner; i++) {
-                    if (Object.keys(defaultProfileData)[i] == "units") {
-                        //we found the default profile - get the value!;
-                        var unitTemp = Object.values(defaultProfileData)[i];
-                        console.log("UNITS ARE: ")
-                        console.log(unitTemp)
-                        if (unitTemp == "mmol") {
-                            //mmol
-                            unit = "mmol";
-                        } else if (unitTemp == "md/dl" || unitTemp == "mg/dl") {
-                            //mgdl
-                            //also cmon nightscout devs.. it's spelled md/dl in the api... LITERALLY UN-USEABLE....
-                            unit = "mgdl";
-                        }
-                    }
-                }
+                //console.log("WE GOT SOME PROFILE DATA:");
+                var dataLength = Object.values(webData).length;
+                var settingsArray = webData["settings"];
+                var settingsArrayLength = Object.values(settingsArray).length;
+                //certain values we need
+                var thresholds = settingsArray["thresholds"];
+                var unitValueSetting = settingsArray["units"];
+
+                //var urgLowArray = [thresholds["bgLow"],settingsArray["alarmUrgentLow"]];
+                //var lowArray = [thresholds["bgTargetBottom"],settingsArray["alarmLow"]];
+                //var urgHighArray = [thresholds["bgHigh"],settingsArray["alarmUrgentHigh"]];
+                //var highArray = [thresholds["bgTargetTop"],settingsArray["alarmHigh"]];
+                var urgLowArray = [thresholds["bgLow"],true];
+                var lowArray = [thresholds["bgTargetBottom"],true];
+                var urgHighArray = [thresholds["bgHigh"],true];
+                var highArray = [thresholds["bgTargetTop"],true];
+                var alarmArray = [urgLowArray,lowArray,highArray,urgHighArray];
+                //console.log(alarmArray);
                 //we got the default profile, now parse.
-                if (unit) {
-                    //we got the unit. do nothing.
-                } else {
-                    unit = defaultUnit;
-                    //something went wrong, set to default (mgdl)
+                if (unitValueSetting.toLowerCase() == "md/dl") {
+                  //nightscout devs... why is it saved as md/dl... EXPLAIN THIS....
+                  unitValueSetting = "mgdl";
+                }else if (unitValueSetting == "mmol"){
+                  //nothing
+                }else{
+                  unitValueSetting = "mgdl";
                 }
+                /*alarmValues: [
+                [defaultUrgentLowValue, true],
+                [defaultLowValue, true],
+                [defaultHighValue, true],
+                [defaultUrgentHighValue, true]
+                ]*/
                 //unit is stored in "mgdl" or "mmol". save this and return.
-                chrome.storage.local.set({
-                    unitValue: unit
-                }, function() {
-                    //set unit. do callback now yay!
-                    console.log("SAVED UNIT AS " + unit);
-                    if (callbackFunctionWeb) {
-                        callbackFunctionWeb();
-                    }
+                //check if unit has changed.
+                chrome.storage.local.get(['unitValue'], function(unitResult) {
+                  var unitType = Object.values(unitResult)[0];
+                  if(unitType==unitValueSetting){
+                    //it's the same.
+                    alarmProfileFunction(alarmArray,callbackFunctionWeb)
+                  }else{
+                    //change it.
+                    chrome.storage.local.set({unitValue: unitValueSetting}, function(){
+                      //set unit. do callback now yay!
+                      console.log("SAVED UNIT AS " + unitValueSetting);
+                      alarmProfileFunction(alarmArray,callbackFunctionWeb);
+                    });
+                  }
                 });
             } else {
                 webError();
@@ -665,7 +703,7 @@ function webRequest(callbackFunc,fullChart) {
                     }else{
                       var profileURLBase = manipulateProfileURL(siteData);
                       profileWebRequest(profileURLBase, function() {
-                          console.log("PARSING DATA!");
+                          //console.log("PARSING DATA!");
                           parseData(xhr.responseText, callbackFunc);
                       });
                     }
