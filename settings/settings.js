@@ -102,6 +102,59 @@ function getValueText(stringName, unitType) {
         }
     }
 }
+function stringManipBoth(urlString){
+	var urlStringBase = urlString;
+	var httpVal;
+	var httpsVal;
+
+	if (urlStringBase.endsWith("/")) {
+        //we're fine. we have a slash.
+    } else {
+        //no slash, add one.
+        urlStringBase = urlStringBase + "/";
+    }
+
+    if (urlStringBase.startsWith("https://") ) {
+        //it starts with https
+        httpVal = "http"+urlStringBase.slice(5);
+        httpsVal = urlStringBase;
+    } else if(urlStringBase.startsWith("http://")){
+    	//starts with http.
+        httpsVal = "https"+urlStringBase.slice(4);
+        httpVal = urlStringBase;
+    } else {
+        //no http, add to string.
+        httpsVal = "https://" + urlStringBase;
+        httpVal = "http://" + urlStringBase;
+    }
+	return [httpVal,httpsVal];
+}
+
+function possibleUrlValues(callbackFunction){
+	var urlString = document.getElementById("siteURL").value;
+	var stringSplit = urlString.split(".");
+	var isHeroku = false;
+	for(i=0;i<stringSplit.length;i++){
+		if(stringSplit[i] == "herokuapp"){
+			//console.log("it's heroku.")
+			isHeroku = true;
+		}
+	}
+	if(isHeroku == true){
+		//just return
+		if(callbackFunction){
+			callbackFunction([],true);
+			return;
+		}
+	}else{
+		//now that it's NOT heroku, we can manipulate the string and ask for perms.
+		//also, get both possible values. https AND http. to secure permissions.
+		var valuesArray = stringManipBoth(urlString);
+		if(callbackFunction){
+			callbackFunction(valuesArray,false);
+		}
+	}
+}
 
 function getURLText(callbackFunction) {
     //sanitize user input so they aren't mean
@@ -220,7 +273,29 @@ function saveFunction() {
 
 document.getElementsByClassName("submitButton")[0].onclick = function() {
     //when submit button clicked, do some stuff.
-    saveFunction();
+    //
+	possibleUrlValues(function(urlArray,isHeroku){
+		//console.log(isHeroku);
+		//console.log(urlArray);
+		if(isHeroku == true){
+			saveFunction();
+		}else{
+			console.log("NOT HEROKU");
+			//request permissions
+			chrome.permissions.request({
+		      origins: [urlArray[0],urlArray[1]]
+		    }, function(granted) {
+		      // The callback argument will be true if the user granted the permissions.
+		      if (granted) {
+		      	//we good. save NOW!
+		      	saveFunction();
+		      } else {
+		      	//they denied it. send alert.
+		      	alertFunc("ERROR: Permissions must be manually granted on non-heroku sites.");
+		      }
+		    });
+		}
+	});
 }
 window.onload = function() {
     //just loading! load all the data to display in settings now.

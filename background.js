@@ -623,14 +623,15 @@ function profileWebRequest(profileURL, callbackFunctionWeb) {
                 var thresholds = settingsArray["thresholds"];
                 var unitValueSetting = settingsArray["units"];
 
-                //var urgLowArray = [thresholds["bgLow"],settingsArray["alarmUrgentLow"]];
-                //var lowArray = [thresholds["bgTargetBottom"],settingsArray["alarmLow"]];
-                //var urgHighArray = [thresholds["bgHigh"],settingsArray["alarmUrgentHigh"]];
-                //var highArray = [thresholds["bgTargetTop"],settingsArray["alarmHigh"]];
-                var urgLowArray = [thresholds["bgLow"],true];
-                var lowArray = [thresholds["bgTargetBottom"],true];
-                var urgHighArray = [thresholds["bgHigh"],true];
-                var highArray = [thresholds["bgTargetTop"],true];
+                var urgLowArray = [thresholds["bgLow"],settingsArray["alarmUrgentLow"]];
+                var lowArray = [thresholds["bgTargetBottom"],settingsArray["alarmLow"]];
+                var urgHighArray = [thresholds["bgHigh"],settingsArray["alarmUrgentHigh"]];
+                var highArray = [thresholds["bgTargetTop"],settingsArray["alarmHigh"]];
+                //var urgLowArray = [thresholds["bgLow"],true];
+                //var lowArray = [thresholds["bgTargetBottom"],true];
+                //var urgHighArray = [thresholds["bgHigh"],true];
+                //var highArray = [thresholds["bgTargetTop"],true];
+                //these are ONLY when you want the alarms to be true by default.
                 var alarmArray = [urgLowArray,lowArray,highArray,urgHighArray];
                 //console.log(alarmArray);
                 //we got the default profile, now parse.
