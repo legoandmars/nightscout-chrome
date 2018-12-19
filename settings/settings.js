@@ -29,52 +29,63 @@ function mmoltoMGDL(mmolVal) {
 }
 
 function checkBSvariables() {
-    // don't forget to check if mmol or mgdl!!!
-    chrome.storage.local.get(['alarmValues'], function(result) {
-        chrome.storage.local.get(['snoozeMinutes'], function(alarmSnoozeVal) {
-            chrome.storage.local.get(['unitValue'], function(unitResult) {
-                var unitType = Object.values(unitResult)[0];
-                var alarmValues = Object.values(result)
-                console.log(alarmValues);
-                if (alarmValues) {
-                    var urgentLowData = alarmValues[0][0];
-                    var lowData = alarmValues[0][1];
-                    var highData = alarmValues[0][2];
-                    var urgentHighData = alarmValues[0][3];
-                    //check if mmol
-                    if (unitType == "mmol") {
-                        urgentLowData[0] = mgdlToMMOL(urgentLowData[0]);
-                        lowData[0] = mgdlToMMOL(lowData[0]);
-                        highData[0] = mgdlToMMOL(highData[0]);
-                        urgentHighData[0] = mgdlToMMOL(urgentHighData[0]);
-                    }
-                    var snoozeData = Number(Object.values(alarmSnoozeVal)[0]);
-                    //check if any are changed.
-                    document.getElementById("urgentLowAlertValue").value = urgentLowData[0];
-                    document.getElementById("lowAlertValue").value = lowData[0];
-                    document.getElementById("highAlertValue").value = highData[0];
-                    document.getElementById("urgentHighAlertValue").value = urgentHighData[0];
-                    document.getElementById("urgentLowEnabled").checked = urgentLowData[1];
-                    document.getElementById("lowEnabled").checked = lowData[1];
-                    document.getElementById("highEnabled").checked = highData[1];
-                    document.getElementById("urgentHighEnabled").checked = urgentHighData[1];
-                    console.log("SNOOZE DATA IS " + snoozeData);
-                    if (isNaN(snoozeData)) {
-                        //support for old users who don't have data.
-                        snoozeData = 30;
-                    }
-                    document.getElementById("alarmSnoozeLength").value = snoozeData;
-                    //now, set site url in the same function.
-                    chrome.storage.local.get(['siteUrl'], function(siteResult) {
-                        var siteUrlValue = Object.values(siteResult);
-                        if (siteUrlValue != "") {
-                            document.getElementById("siteURL").value = siteUrlValue;
-                        }
-                    });
-                }
-            });
-        });
-    });
+	if(document){
+	    // don't forget to check if mmol or mgdl!!!
+	    chrome.storage.local.get(['alarmValues'], function(result) {
+	        chrome.storage.local.get(['snoozeMinutes'], function(alarmSnoozeVal) {
+	            chrome.storage.local.get(['unitValue'], function(unitResult) {
+	            	chrome.storage.local.get(['colors'], function(colorResult) {
+		                var unitType = Object.values(unitResult)[0];
+		                var alarmValues = Object.values(result);
+		                var colorValues = Object.values(colorResult)[0];
+		                console.log(alarmValues);
+		                if (alarmValues) {
+		                    var urgentLowData = alarmValues[0][0];
+		                    var lowData = alarmValues[0][1];
+		                    var highData = alarmValues[0][2];
+		                    var urgentHighData = alarmValues[0][3];
+		                    //check if mmol
+		                    if (unitType == "mmol") {
+		                        urgentLowData[0] = mgdlToMMOL(urgentLowData[0]);
+		                        lowData[0] = mgdlToMMOL(lowData[0]);
+		                        highData[0] = mgdlToMMOL(highData[0]);
+		                        urgentHighData[0] = mgdlToMMOL(urgentHighData[0]);
+		                    }
+		                    var snoozeData = Number(Object.values(alarmSnoozeVal)[0]);
+		                    //check if any are changed.
+		                    document.getElementById("urgentLowAlertValue").value = urgentLowData[0];
+		                    document.getElementById("lowAlertValue").value = lowData[0];
+		                    document.getElementById("highAlertValue").value = highData[0];
+		                    document.getElementById("urgentHighAlertValue").value = urgentHighData[0];
+		                    document.getElementById("urgentLowEnabled").checked = urgentLowData[1];
+		                    document.getElementById("lowEnabled").checked = lowData[1];
+		                    document.getElementById("highEnabled").checked = highData[1];
+		                    document.getElementById("urgentHighEnabled").checked = urgentHighData[1];
+		                    console.log("SNOOZE DATA IS " + snoozeData);
+		                    if (isNaN(snoozeData)) {
+		                        //support for old users who don't have data.
+		                        snoozeData = 30;
+		                    }
+		                    document.getElementById("alarmSnoozeLength").value = snoozeData;
+		                    //set color box value.
+		                    if(colorValues == "colors"){
+		                    	document.getElementById("themeBox").options[1].selected = 'selected';
+		                    }else{
+		                    	document.getElementById("themeBox").options[0].selected = 'selected';
+		                    }
+		                    //now, set site url in the same function.
+		                    chrome.storage.local.get(['siteUrl'], function(siteResult) {
+		                        var siteUrlValue = Object.values(siteResult);
+		                        if (siteUrlValue != "") {
+		                            document.getElementById("siteURL").value = siteUrlValue;
+		                        }
+		                    });
+		                }
+	           		});
+	            });
+	        });
+	    });
+	}
 }
 
 function getValueText(stringName, unitType) {
@@ -204,7 +215,16 @@ function getCheckValue(stringName) {
     var getCheck = document.getElementById(stringName).checked;
     return getCheck;
 }
-
+function getListValue(stringName){
+	var gottenId = document.getElementById(stringName).value;
+	if(Number(gottenId) == 1){
+		//colors
+		return "colors";
+	}else if(Number(gottenId) == 0){
+		//default
+		return "default"
+	}else{return "default";}
+}
 function alertFunc(customMessage) {    
     alert(customMessage);
 }
@@ -221,9 +241,9 @@ function saveFunction() {
         var lCheckbox = getCheckValue("lowEnabled");
         var hCheckbox = getCheckValue("highEnabled");
         var uHCheckbox = getCheckValue("urgentHighEnabled");
-
+        var themeList = getListValue("themeBox");
         var snoozeLength = getValueText("alarmSnoozeLength");
-
+        console.log(themeList);
         console.log(uLSaved, lSaved, hSaved, uHSaved);
         //double check that they're all actual 
         if (uLSaved != false && lSaved != false && hSaved != false && uHSaved != false) {
@@ -250,10 +270,12 @@ function saveFunction() {
                             chrome.storage.local.set({
                                 snoozeMinutes: snoozeLength
                             }, function() {
-                                //once saved, force reload.
-                                chrome.extension.getBackgroundPage().webRequest(function() {
-                                    //it is done reloading, force reload settings page!
-                                    checkBSvariables();
+                            	chrome.storage.local.set({colors:themeList},function(){
+                                	//once saved, force reload.
+	                                chrome.extension.getBackgroundPage().webRequest(function() {
+	                                    //it is done reloading, force reload settings page!
+	                                    checkBSvariables();
+	                                });
                                 });
                             });
                         });

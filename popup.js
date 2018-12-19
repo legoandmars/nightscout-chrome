@@ -7,6 +7,7 @@ var urgentHighValue;
 
 var globalOldData;
 var globalOldNumber;
+var globalTheme;
 
 function arrowValues(direction) {
     var baseUrl = "arrows/"
@@ -199,6 +200,33 @@ function createGraph(dataParsed,unitType,dataAmount){
 		    document.getElementsByClassName("innerChart")[0].appendChild(newDot);
 		    newDot.style.top = 154 - (((sgvMgdl - 40) / 40) * 16.666) + "px";
 		    newDot.style.left = 258 - (i * (243 / (dataAmount - 1))) + "px";
+		    console.log(globalTheme+" IS THE GLOBAL THEME!");
+		    if(globalTheme == "colors"){
+		    	var lowValueTemp = lowValue[0];
+		    	var urgentLowValueTemp = urgentLowValue[0];
+		    	var urgentHighValueTemp = urgentHighValue[0];
+		        var highValueTemp = highValue[0];
+		        if (unitType == "mmol") {
+		            lowValueTemp = mgdlToMMOL(lowValueTemp);
+		            urgentLowValueTemp = mgdlToMMOL(urgentLowValueTemp);
+		            urgentHighValueTemp = mgdlToMMOL(urgentHighValueTemp);
+		            highValueTemp = mgdlToMMOL(highValueTemp);
+		            //it's mmol, so we have to convert the lowvalues. 
+		        } //else is mgdl
+			    if(Number(sgv) >= urgentHighValueTemp){
+			    	newDot.style.backgroundColor = "red";
+			    }else if(Number(sgv) >= highValueTemp){
+			    	newDot.style.backgroundColor = "yellow";
+			    }else if(Number(sgv) <= urgentLowValueTemp){
+			    	newDot.style.backgroundColor = "red";
+			    }else if(Number(sgv) <= lowValueTemp){
+			    	newDot.style.backgroundColor = "yellow";
+			    }else{
+			    	newDot.style.backgroundColor = "#4CFF00";
+			    }
+			}else{
+				//either default or something else.. either way, do nothing.
+			}
 		    //dotMOEvent(newDot,bloodSugar,dateString);
 		    //define vars for following functions
 		    var timeText = document.getElementsByClassName("mouseOverTimeValue")[0];
@@ -241,25 +269,59 @@ function createGraph(dataParsed,unitType,dataAmount){
 		        var mainTextHolder = document.getElementsByClassName("mainTextHolder");
 		        mainText[0].innerHTML = bloodSugar;
 		        var arrowStr = "";
-		        var lowValueTemp = lowValue[0];
-		        var highValueTemp = highValue[0];
 		        //var unitAddition = unitToProperString(unitType); this is for adding mg/dL or mmol/L properly
-		        if (unitType == "mmol") {
-		            lowValueTemp = mgdlToMMOL(lowValueTemp);
-		            highValueTemp = mgdlToMMOL(highValueTemp);
-		            //it's mmol, so we have to convert the lowvalues. 
-		        } //else is mgdl
-		        if (Number(bloodSugar) <= Number(lowValueTemp)) {
-		            mainTextHolder[0].style.backgroundColor = "red"
-		            mainText[0].style.color = "black";
-		        } else if (Number(bloodSugar) >= Number(highValueTemp)) {
-		            mainTextHolder[0].style.backgroundColor = "#c6a400"
-		            mainText[0].style.color = "black";
-		        } else {
-		            mainTextHolder[0].style.backgroundColor = "black"
-		            mainText[0].style.color = "gray";
-		            arrowStr = "gray";
-		        }
+		        if(globalTheme == "colors"){
+		        	mainTextHolder[0].style.backgroundColor = "black";
+		        	//mainTextHolder[0].style.borderColor = "black";
+			    	var lowValueTemp = lowValue[0];
+			    	var urgentLowValueTemp = urgentLowValue[0];
+			    	var urgentHighValueTemp = urgentHighValue[0];
+			        var highValueTemp = highValue[0];
+			        if (unitType == "mmol") {
+			            lowValueTemp = mgdlToMMOL(lowValueTemp);
+			            urgentLowValueTemp = mgdlToMMOL(urgentLowValueTemp);
+			            urgentHighValueTemp = mgdlToMMOL(urgentHighValueTemp);
+			            highValueTemp = mgdlToMMOL(highValueTemp);
+			            //it's mmol, so we have to convert the lowvalues. 
+			        } //else is mgdl
+				    if(Number(sgv) >= urgentHighValueTemp){
+				    	mainText[0].style.color = "red";
+				    	arrowStr = "red";
+				    }else if(Number(sgv) >= highValueTemp){
+				    	mainText[0].style.color = "yellow";
+				    	arrowStr = "yellow";
+				    }else if(Number(sgv) <= urgentLowValueTemp){
+				    	mainText[0].style.color = "red";
+				    	arrowStr = "red";
+				    }else if(Number(sgv) <= lowValueTemp){
+				    	mainText[0].style.color = "yellow";
+				    	arrowStr = "yellow";
+				    }else{
+				    	mainText[0].style.color = "#4CFF00";
+				    	arrowStr = "green";
+				    }
+				}else{
+		        	//mainTextHolder[0].style.borderColor = "white";
+			    	var lowValueTemp = lowValue[0];
+			        var highValueTemp = highValue[0];
+			        if (unitType == "mmol") {
+			            lowValueTemp = mgdlToMMOL(lowValueTemp);
+			            highValueTemp = mgdlToMMOL(highValueTemp);
+			            //it's mmol, so we have to convert the lowvalues. 
+			        } //else is mgdl
+			        if (Number(bloodSugar) <= Number(lowValueTemp)) {
+			            mainTextHolder[0].style.backgroundColor = "red"
+			            mainText[0].style.color = "black";
+			        } else if (Number(bloodSugar) >= Number(highValueTemp)) {
+			            mainTextHolder[0].style.backgroundColor = "#c6a400"
+			            mainText[0].style.color = "black";
+			        } else {
+			            mainTextHolder[0].style.backgroundColor = "black"
+			            mainText[0].style.color = "gray";
+			            arrowStr = "gray";
+			        }
+				}
+
 		        //set arrow to correct image. 
 		        var arrowImage = document.getElementsByClassName("arrowImage");
 		        arrowImage[0].src = arrowStringVal + arrowStr + ".png";
@@ -542,6 +604,11 @@ function checkBSvariables() {
     });
 }
 
+function checkColorVariables(){
+	chrome.storage.local.get(['colors'], function(result) {
+		globalTheme = Object.values(result)[0];
+	});
+}
 //now, make a shitty force refresh function.
 
 window.onload = function() {
@@ -556,6 +623,7 @@ window.onload = function() {
     });
     getHighlightedFromValue();
     checkBSvariables();
+    checkColorVariables();
     chrome.storage.local.get(['bsTable'], function(exportedData) {
         var convertedData = Object.values(exportedData);
         //alert(convertedData);

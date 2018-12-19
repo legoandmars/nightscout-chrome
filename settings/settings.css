@@ -177,3 +177,21 @@ textarea {
 #alarmMinuteText {
 	left: 68px;
 }
+
+.customSelect{
+	background-color: black;
+	font-family: 'Ubuntu', Verdana, Helvetica, Arial, sans-serif;
+	position: absolute;
+	width: 75px;
+	left: 30px;
+	top: 1px;
+	border-radius: 5px;
+	border-width: 1.5px;
+	border-color: grey;
+	color: white;
+}
+
+.select-selected {
+	background-color: black;
+	font-family: 'Ubuntu', Verdana, Helvetica, Arial, sans-serif;
+}

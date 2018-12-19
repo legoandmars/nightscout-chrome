@@ -42,6 +42,10 @@ var storageArray = [{
         gottenProfileAlarms: false
     }, {
         lastProfileUrl: "" 
+    }, {
+        colors:false
+    },{
+        gottenColors:false
     }
 ];
 var storageInc = 0; //used for looping through storage
@@ -585,6 +589,7 @@ function alarmProfileFunction2(alarmTempArray,callbackFunc){
 function alarmProfileFunction(alarmTempArray,callbackFunc){
   //get to see if changed from default site stuff yet;
   //NOTE: IF PROFILE URL SAVED VALUE IS DIFFERENT, RESET THE VALUESS OF gottenProfileAlarms!
+  // this will ALSO handle profile url stuff.
   chrome.storage.local.get(['lastProfileUrl'], function(lastProfileURLResult){
     var profileUrlValue = Object.values(lastProfileURLResult)[0];
     chrome.storage.local.get(['siteUrl'], function(siteUrlResult){
@@ -595,16 +600,43 @@ function alarmProfileFunction(alarmTempArray,callbackFunc){
       }else{
         //it has changed. set the new profile url, and set gottenProfileAlarms to false.
         chrome.storage.local.set({gottenProfileAlarms: false}, function(){
-          //it has been set to false.
-          chrome.storage.local.set({lastProfileUrl: siteUrlValue}, function(){
-            //new profile url set.
-            alarmProfileFunction2(alarmTempArray,callbackFunc);
-          });
+            chrome.storage.local.set({gottenColors: false}, function(){
+              //it has been set to false.
+              chrome.storage.local.set({lastProfileUrl: siteUrlValue}, function(){
+                //new profile url set.
+                alarmProfileFunction2(alarmTempArray,callbackFunc);
+              });
+            });
         });
       }
     });
   });
 }
+
+function colorProfileFunction(colorValue,callbackFunc){
+   //!!!   
+    chrome.storage.local.get(['gottenColors'], function(gottenResult){
+      var gottenValue = Object.values(gottenResult)[0];
+        if(gottenValue == false){
+          console.log("Pulling color data from the Nightscout site!");
+          chrome.storage.local.set({colors: colorValue}, function(){
+            //set old profile stuff too!
+            chrome.storage.local.set({gottenColors: true}, function(){
+              if (callbackFunc) {
+                callbackFunc();
+              }
+            });
+          });
+        }else{
+          //console.log("SORRY, WE'VE GOTTEN IT.");
+          if (callbackFunc) {
+            callbackFunc();
+          }
+        }
+    });
+}
+
+
 function profileWebRequest(profileURL, callbackFunctionWeb) {
     var defaultUnit = "mgdl";
     var unit;
@@ -622,7 +654,7 @@ function profileWebRequest(profileURL, callbackFunctionWeb) {
                 //certain values we need
                 var thresholds = settingsArray["thresholds"];
                 var unitValueSetting = settingsArray["units"];
-
+                var userTheme = settingsArray["theme"];
                 var urgLowArray = [thresholds["bgLow"],settingsArray["alarmUrgentLow"]];
                 var lowArray = [thresholds["bgTargetBottom"],settingsArray["alarmLow"]];
                 var urgHighArray = [thresholds["bgHigh"],settingsArray["alarmUrgentHigh"]];
@@ -661,7 +693,9 @@ function profileWebRequest(profileURL, callbackFunctionWeb) {
                     chrome.storage.local.set({unitValue: unitValueSetting}, function(){
                       //set unit. do callback now yay!
                       console.log("SAVED UNIT AS " + unitValueSetting);
-                      alarmProfileFunction(alarmArray,callbackFunctionWeb);
+                      alarmProfileFunction(alarmArray,function(){
+                        colorProfileFunction(userTheme,callbackFunctionWeb);
+                      });
                     });
                   }
                 });
