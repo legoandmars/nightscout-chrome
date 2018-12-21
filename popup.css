@@ -34,7 +34,7 @@ body {
 .chartBackground {
 	position: relative;
 	left: -8px;
-	top: 12px;
+	top: 17px;
 	width: 316px;
 	height: 190px;
 	background-color: #111111;
@@ -44,13 +44,32 @@ body {
 	font-family: 'Ubuntu', Verdana, Helvetica, Arial, sans-serif;
 	color: white;
 	font-size: 13px;
-	position: relative;
+	position: absolute;
 	left: 290px;
-	margin-top: 5px;
-	margin-bottom: 9px;
+	margin-top: 0px;
+	margin-bottom: 0px;
+}
+
+.destroyMarkers {
+	font-family: 'Ubuntu', Verdana, Helvetica, Arial, sans-serif;
+	color: white;
+	font-size: 13px;
+	position: absolute;
+	left: 290px;
+	margin-top: 0px;
+	margin-bottom: 0px;
 }
 
 .horizontal_dotted_line {
+	border-bottom: 1px dashed;
+	border-color: grey;
+	opacity: 0.3;
+	width: 100%;
+	position: absolute;
+	display: inline-block;
+}
+
+.destroyLine {
 	border-bottom: 1px dashed;
 	border-color: grey;
 	opacity: 0.3;
@@ -74,8 +93,8 @@ body {
 	font-family: 'Ubuntu', Verdana, Helvetica, Arial, sans-serif;
 	color: white;
 	font-size: 13px;
-	top: -7px;
-	position: relative;
+	top: 145px;
+	position: absolute;
 	display: inline;
 	text-align: center;
 }
@@ -95,31 +114,11 @@ body {
 	height: 100%;
 }
 
-#line400 {
+#linetop {
 	top: 7px;
 }
 
-#line340 {
-	top: 32px;
-}
-
-#line280 {
-	top: 57px;
-}
-
-#line220 {
-	top: 82px;
-}
-
-#line160 {
-	top: 107px;
-}
-
-#line100 {
-	top: 132px;
-}
-
-#line40 {
+#linebottom {
 	top: 157px;
 }
 
@@ -128,7 +127,6 @@ body {
 }
 
 #date2 {
-	left: 175px;
 }
 
 .dot {
@@ -137,6 +135,7 @@ body {
 	background-color: #bbb;
 	border-radius: 50%;
 	position: absolute;
+	z-index: 70;
 }
 
 .hourButton {
@@ -278,6 +277,7 @@ body {
 	top: 180px;
 	left: 208px;
 	visibility: hidden;
+	z-index: 71;
 	/*add 26 to top. minus fifty from left*/
 }
 
@@ -316,4 +316,60 @@ body {
 	left: 25px;
 	top: 2px;
 	border: none;
+}
+.canvasObject{
+	width:100%;
+	height: 100%;
+	position:absolute;
+	z-index: 69; /*nice*/
+}
+.whiteLine{
+	background-color: white;
+	width: 1px;
+	height:6px;
+	top:158px;
+	left:260px;
+	position: absolute;
+}
+.whiteLineNew{
+	background-color: white;
+	width: 1px;
+	height:3px;
+	top:158px;
+	left:260px;
+	position: absolute;
+}
+.whiteLineWide{
+	background-color: white;
+	width: 20px;
+	height:1px;
+	top:161px;
+	left:260px;
+	position: absolute;
+}
+.dateHolder{
+	width:45px;
+	height:24px;
+	position: absolute;
+	top:164px;
+	left:238px;
+}
+
+.dateHolderNew{
+	width:45px;
+	height:24px;
+	position: absolute;
+	top:164px;
+	left:238px;
+}
+
+.dateMarkersNew {
+	font-family: 'Ubuntu', Verdana, Helvetica, Arial, sans-serif;
+	color: white;
+	font-size: 13px;
+	top: 0px;
+	position: relative;
+	text-align: center;
+	margin: 0px;
+	line-height: 12px;
 }

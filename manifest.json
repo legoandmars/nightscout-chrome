@@ -1,6 +1,6 @@
   {
     "name": "Nightscout Chrome Extension",
-    "version": "1.2.0",
+    "version": "2.0.0",
     "description": "Beta Build for Nightscout Chrome Extension! Github: github.com/legoandmars/nightscout-chrome",
     "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
     "permissions": ["declarativeContent", "storage","webRequest","https://*.herokuapp.com/","http://*.herokuapp.com/","notifications"],
