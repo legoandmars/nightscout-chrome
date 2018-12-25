@@ -354,15 +354,63 @@ function mgdlToMMOL(mgdlVal) {
     return (tempMmolFinal);
 }
 
-function bsColors(bgValue, unitType) {
+function arrowValues(direction) {
+    var exportString = "";
+    switch (direction) {
+        case "NONE":
+            exportString = ""
+            break;
+        case "DOUBLEUP":
+            exportString = "↑"
+            break;
+        case "SINGLEUP":
+            exportString = "↑"
+            break;
+        case "FORTYFIVEUP":
+            exportString = "↗"
+            break;
+        case "FLAT":
+            exportString = "→"
+            break;
+        case "FORTYFIVEDOWN":
+            exportString = "↘"
+            break;
+        case "SINGLEDOWN":
+            exportString = "↓"
+            break;
+        case "DOUBLEDOWN":
+            exportString = "↓"
+            break;
+        case "NOT COMPUTABLE":
+            exportString = ""
+            break;
+        case "RATE OUT OF RANGE":
+            exportString = ""
+            break;
+    }
+    return exportString;
+}
+
+function bsColors(bgValue, unitType, fullData) {
     var lowValueTemp = lowValue[0];
     var highValueTemp = highValue[0];
+    var directionValue = fullData["direction"];
+    var deltaValue = fullData["delta"];
     if (unitType == "mmol") {
         lowValueTemp = mgdlToMMOL(lowValueTemp);
         highValueTemp = mgdlToMMOL(highValueTemp);
         //console.log("COLORS YEET");
         //it's mmol, so we have to convert the lowvalues. 
     }
+    var newNum = "NaN";
+    if(deltaValue){
+        newNum = Math.round(Number(deltaValue));
+        if (newNum >= 0) {
+            newNum = "+" + newNum;
+        }
+    }
+
+    //get arrow value, too.
     var customColor = "gray";
     if (Number(bgValue) <= lowValueTemp) {
         customColor = "red";
@@ -372,12 +420,25 @@ function bsColors(bgValue, unitType) {
     chrome.browserAction.setBadgeBackgroundColor({
         color: customColor
     });
+    var bgValueString = bgValue;
+    if(directionValue){
+        //double check it's not mmol above ten.
+        if(unitType == "mmol"){
+            if(Number(bgValue) < 10){
+                bgValueString = bgValue.toString() + arrowValues(directionValue.toUpperCase());
+            }else{
+            //no luck. mmol above ten is ba d.
+            }
+        }else{
+            bgValueString = bgValue.toString() + arrowValues(directionValue.toUpperCase());
+        }
+    }
     chrome.browserAction.setBadgeText({
-        text: bgValue.toString()
+        text: bgValueString.toString()
     });
     //chrome.browserAction.setBadgeBackgroundColor({color:"gray"})
     chrome.browserAction.setTitle({
-        title: "Blood Glucose Level: " + bgValue.toString()
+        title: "Blood Glucose: " + bgValue.toString()+unitToProperString(unitType)+"\n"+"Delta: "+newNum+" ("+arrowValues(directionValue.toUpperCase())+")"
     });
 }
 
@@ -405,12 +466,13 @@ function saveFunc(responseData, callbackFunc) {
                 var tempTest = Object.values(result);
                 var tempTabl = returnCurrentBG(tempTest, true, true, unitType);
                 tempBG = tempTabl[0];
+                var currentPointData = tempTabl[2];
                 if (tempBG != false) {
                     checkBSvariables(function() {
                         //bsAlerts(tempBG,tempDate,true);
                         //change bg vals.
                         console.log("Current blood sugar is: " + tempBG);
-                        bsColors(tempBG, unitType);
+                        bsColors(tempBG, unitType,currentPointData);
                     });
                 }
                 //console.log("No change in data.")
@@ -436,6 +498,7 @@ function saveFunc(responseData, callbackFunc) {
                         currentBG = currentDATA[0];
                         //mmol and mgdl have a few problems - for now, notification data is stored in mgdl, so make sure to convert them to mmol when you get into the function!
                         currentDate = currentDATA[1];
+                        var currentPointData = currentDATA[2];
                         if (currentBG != false) {
                             //currentBG = 70;
                             //console.log(currentBG);
@@ -446,7 +509,7 @@ function saveFunc(responseData, callbackFunc) {
                             checkBSvariables(function() {
                                 //now that variables are set, do alerts and colors.
                                 bsAlerts(currentBG, currentDate, unitType);
-                                bsColors(currentBG, unitType);
+                                bsColors(currentBG, unitType,currentPointData);
                             });
                         }
                       });
@@ -472,7 +535,7 @@ function returnCurrentBG(data, notif, returnDate, unitType) {
             parsed = JSON.parse(data[0]);
         } catch (err) {
             console.log("aaaand the json parse crashed!");
-            return false;
+            return [false,false];
         }
     } else {
         parsed = JSON.parse(data);
@@ -496,11 +559,11 @@ function returnCurrentBG(data, notif, returnDate, unitType) {
                 sgv = Number(sgv);
             }
             if (returnDate == false) {
-                return sgv;
+                return [sgv, indivString];
             } else if (returnDate == true) {
-                return [sgv, Number(dateStr)];
+                return [sgv, Number(dateStr), indivString];
             } else {
-                return sgv;
+                return [sgv, indivString];
             }
         }
     }

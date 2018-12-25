@@ -53,10 +53,18 @@ function checkBSvariables() {
 		                    }
 		                    var snoozeData = Number(Object.values(alarmSnoozeVal)[0]);
 		                    //check if any are changed.
-		                    document.getElementById("urgentLowAlertValue").value = urgentLowData[0];
-		                    document.getElementById("lowAlertValue").value = lowData[0];
-		                    document.getElementById("highAlertValue").value = highData[0];
-		                    document.getElementById("urgentHighAlertValue").value = urgentHighData[0];
+                            document.getElementById("urgentLowAlertValue").value = urgentLowData[0];
+                            document.getElementById("urgentLowAlertValue").placeholder = urgentLowData[0];
+
+                            document.getElementById("lowAlertValue").value = lowData[0];
+                            document.getElementById("lowAlertValue").placeholder = lowData[0];
+
+                            document.getElementById("highAlertValue").value = highData[0];
+                            document.getElementById("highAlertValue").placeholder = highData[0];
+
+                            document.getElementById("urgentHighAlertValue").value = urgentHighData[0];
+                            document.getElementById("urgentHighAlertValue").placeholder = urgentHighData[0];
+
 		                    document.getElementById("urgentLowEnabled").checked = urgentLowData[1];
 		                    document.getElementById("lowEnabled").checked = lowData[1];
 		                    document.getElementById("highEnabled").checked = highData[1];
@@ -66,7 +74,8 @@ function checkBSvariables() {
 		                        //support for old users who don't have data.
 		                        snoozeData = 30;
 		                    }
-		                    document.getElementById("alarmSnoozeLength").value = snoozeData;
+                            document.getElementById("alarmSnoozeLength").value = snoozeData;
+                            document.getElementById("alarmSnoozeLength").placeholder = snoozeData;
 		                    //set color box value.
 		                    if(colorValues == "colors"){
 		                    	document.getElementById("themeBox").options[1].selected = 'selected';
@@ -77,7 +86,8 @@ function checkBSvariables() {
 		                    chrome.storage.local.get(['siteUrl'], function(siteResult) {
 		                        var siteUrlValue = Object.values(siteResult);
 		                        if (siteUrlValue != "") {
-		                            document.getElementById("siteURL").value = siteUrlValue;
+                                    document.getElementById("siteURL").value = siteUrlValue;
+                                    document.getElementById("siteURL").placeholder = siteUrlValue;
 		                        }
 		                    });
 		                }
