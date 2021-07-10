@@ -580,11 +580,14 @@ function parseData(response, callbackFunc) {
 function manipulateURL(urlObj,count) {
     var siteUrlBase = Object.values(urlObj)[0];
     //check if it starts with https/http and manipulate accordingly
-    if (siteUrlBase.startsWith("https://") || siteUrlBase.startsWith("http://")) {
+    if (siteUrlBase.startsWith("https://")) {
         //it starts with https/http, we should be good.
+    } else if (siteUrlBase.startsWith("http://")){
+        siteUrlBase = siteUrlBase.replace("http://", "https://") 
+        // force https 
     } else {
         //no http, add to string.
-        siteUrlBase = "http://" + siteUrlBase;
+        siteUrlBase = "https://" + siteUrlBase;
     }
     //make sure it ends in a big ol slash
     if (siteUrlBase.endsWith("/")) {
@@ -603,11 +606,14 @@ function manipulateProfileURL(urlObj) {
     var siteUrlBase = Object.values(urlObj)[0];
     //console.log(siteUrlBase);
     //check if it starts with https/http and manipulate accordingly
-    if (siteUrlBase.startsWith("https://") || siteUrlBase.startsWith("http://")) {
+    if (siteUrlBase.startsWith("https://")) {
         //it starts with https/http, we should be good.
+    } else if (siteUrlBase.startsWith("http://")){
+        siteUrlBase = siteUrlBase.replace("http://", "https://") 
+        // force https 
     } else {
         //no http, add to string.
-        siteUrlBase = "http://" + siteUrlBase;
+        siteUrlBase = "https://" + siteUrlBase;
     }
     //make sure it ends in a big ol slash
     if (siteUrlBase.endsWith("/")) {

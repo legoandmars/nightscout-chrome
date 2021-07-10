@@ -15,7 +15,8 @@ body {
 }
 
 .mainText {
-	font-family: 'Ubuntu', Verdana, Helvetica, Arial, sans-serif color:white;
+	font-family: 'Ubuntu', Verdana, Helvetica, Arial, sans-serif;
+	color:white;
 	font-size: 30px;
 	text-align: left;
 	position: relative;

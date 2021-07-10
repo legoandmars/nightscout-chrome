@@ -71,7 +71,7 @@ function convertDate(dateObject) {
     if (h > 12) {
         h = h - 12
         ampm = "PM"
-    } else if (h == 00) {
+    } else if (h == 0) {
         h = 12
         //ampm = "PM"
     }
@@ -794,11 +794,14 @@ function manipulateURL(urlObj) {
     var siteUrlBase = Object.values(urlObj)[0];
     console.log(siteUrlBase);
     //check if it starts with https/http and manipulate accordingly
-    if (siteUrlBase.startsWith("https://") || siteUrlBase.startsWith("http://")) {
+    if (siteUrlBase.startsWith("https://")) {
         //it starts with https/http, we should be good.
+    } else if (siteUrlBase.startsWith("http://")){
+        siteUrlBase = siteUrlBase.replace("http://", "https://") 
+        // force https 
     } else {
         //no http, add to string.
-        siteUrlBase = "http://" + siteUrlBase;
+        siteUrlBase = "https://" + siteUrlBase;
     }
     //make sure it ends in a big ol slash
     if (siteUrlBase.endsWith("/")) {

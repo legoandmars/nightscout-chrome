@@ -125,7 +125,6 @@ function getValueText(stringName, unitType) {
 }
 function stringManipBoth(urlString){
 	var urlStringBase = urlString;
-	var httpVal;
 	var httpsVal;
 
 	if (urlStringBase.endsWith("/")) {
@@ -137,18 +136,15 @@ function stringManipBoth(urlString){
 
     if (urlStringBase.startsWith("https://") ) {
         //it starts with https
-        httpVal = "http"+urlStringBase.slice(5);
         httpsVal = urlStringBase;
     } else if(urlStringBase.startsWith("http://")){
     	//starts with http.
         httpsVal = "https"+urlStringBase.slice(4);
-        httpVal = urlStringBase;
     } else {
         //no http, add to string.
         httpsVal = "https://" + urlStringBase;
-        httpVal = "http://" + urlStringBase;
     }
-	return [httpVal,httpsVal];
+	return [httpsVal,httpsVal];
 }
 
 function possibleUrlValues(callbackFunction){
@@ -169,7 +165,6 @@ function possibleUrlValues(callbackFunction){
 		}
 	}else{
 		//now that it's NOT heroku, we can manipulate the string and ask for perms.
-		//also, get both possible values. https AND http. to secure permissions.
 		var valuesArray = stringManipBoth(urlString);
 		if(callbackFunction){
 			callbackFunction(valuesArray,false);
@@ -182,8 +177,10 @@ function getURLText(callbackFunction) {
     var urlString = document.getElementById("siteURL").value;
     //now you have string, check if it's valid.
     //check if it starts with https/http and manipulate accordingly
-    if (urlString.startsWith("https://") || urlString.startsWith("http://")) {
+    if (urlString.startsWith("https://")) {
         //it starts with https/http, we should be good.
+    } else if(urlString.startsWith("http://")){
+        urlString = urlString.replace("http://", "https://") ;
     } else {
         //no http, add to string.
         urlString = "https://" + urlString;
@@ -315,7 +312,7 @@ document.getElementsByClassName("submitButton")[0].onclick = function() {
 			console.log("NOT HEROKU");
 			//request permissions
 			chrome.permissions.request({
-		      origins: [urlArray[0],urlArray[1]]
+		      origins: [urlArray[1]]
 		    }, function(granted) {
 		      // The callback argument will be true if the user granted the permissions.
 		      if (granted) {
