@@ -791,8 +791,10 @@ function getHighlightedFromValue() {
 }
 
 function manipulateURL(urlObj) {
-    var siteUrlBase = Object.values(urlObj)[0];
-    console.log(siteUrlBase);
+    var siteUrlBase = urlObj['siteUrl'];
+    var siteTokenBase = urlObj['siteToken'];/*Object.values(urlObj)[0];*/
+	console.log("manipulateURL " + siteUrlBase);
+	console.log("manipulateURL " + siteTokenBase);
     //check if it starts with https/http and manipulate accordingly
     if (siteUrlBase.startsWith("https://")) {
         //it starts with https/http, we should be good.
@@ -810,7 +812,7 @@ function manipulateURL(urlObj) {
         //no slash, add one.
         siteUrlBase = siteUrlBase + "/";
     }
-    //siteUrlBase = siteUrlBase+ 'api/v1/entries.json?count=';
+    siteUrlBase = siteUrlBase + '?token=' + siteTokenBase;
     //console.log("URL IS "+siteUrlBase); 
     //return url with correct values.
     return siteUrlBase;
@@ -868,7 +870,8 @@ function buttonClickFunc(button) {
     } else if (button.className == "nightscoutButton") {
         //do stuf here
         button.onclick = function() {
-            chrome.storage.local.get(['siteUrl'], function(siteData) {
+            chrome.storage.local.get(['siteUrl', 'siteToken'], function(siteData) {
+				console.log(siteData);
                 var siteUrlBase = manipulateURL(siteData);
                 chrome.tabs.create({
                     'url': siteUrlBase

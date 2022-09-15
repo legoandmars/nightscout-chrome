@@ -1,6 +1,6 @@
   {
-    "name": "Nightscout Chrome Extension",
-    "version": "2.1.1",
+    "name": "Nightscout",
+    "version": "2.1.2",
     "description": "A Chrome extension that adds a convenient way to check blood sugar data from Nightscout in your browser.",
     "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
     "permissions": ["storage","https://*.herokuapp.com/", "notifications"],

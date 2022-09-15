@@ -82,14 +82,22 @@ function checkBSvariables() {
 		                    }else{
 		                    	document.getElementById("themeBox").options[0].selected = 'selected';
 		                    }
-		                    //now, set site url in the same function.
-		                    chrome.storage.local.get(['siteUrl'], function(siteResult) {
-		                        var siteUrlValue = Object.values(siteResult);
-		                        if (siteUrlValue != "") {
+                            //now, set site url in the same function.
+                            chrome.storage.local.get(['siteUrl'], function(siteResult) {
+                                var siteUrlValue = Object.values(siteResult);
+                                if (siteUrlValue != "") {
                                     document.getElementById("siteURL").value = siteUrlValue;
                                     document.getElementById("siteURL").placeholder = siteUrlValue;
-		                        }
-		                    });
+                                }
+                            });
+                            //now, set site token in the same function.
+                            chrome.storage.local.get(['siteToken'], function(siteResult) {
+                                var siteTokenValue = Object.values(siteResult);
+                                if (siteTokenValue != "") {
+                                    document.getElementById("siteToken").value = siteTokenValue;
+                                    document.getElementById("siteToken").placeholder = siteTokenValue;
+                                }
+                            });
 		                }
 	           		});
 	            });
@@ -175,6 +183,7 @@ function possibleUrlValues(callbackFunction){
 function getURLText(callbackFunction) {
     //sanitize user input so they aren't mean
     var urlString = document.getElementById("siteURL").value;
+    var siteToken = document.getElementById("siteToken").value;
     //now you have string, check if it's valid.
     //check if it starts with https/http and manipulate accordingly
     if (urlString.startsWith("https://")) {
@@ -195,9 +204,11 @@ function getURLText(callbackFunction) {
     //v this should not be needed, simply testing for web api response.
     //urlString = urlString+ 'api/v1/entries.json?count=';
     console.log("URL IS " + urlString);
+    var urlCallString =  urlString + "?token=" + siteToken;
+    console.log("TOKEN IS " + siteToken);
     //check if site exists
     var xhr = new XMLHttpRequest();
-    xhr.open("GET", urlString, true);
+    xhr.open("GET", urlCallString, true);
     xhr.onload = function(e) {
         if (xhr.readyState === 4) {
             if (xhr.status === 200) {
@@ -232,6 +243,10 @@ function getListValue(stringName){
 		return "default"
 	}else{return "default";}
 }
+function getStringValue(stringName){
+    var getString = document.getElementById(stringName).value;
+    return getString
+}
 function alertFunc(customMessage) {    
     alert(customMessage);
 }
@@ -250,6 +265,7 @@ function saveFunction() {
         var uHCheckbox = getCheckValue("urgentHighEnabled");
         var themeList = getListValue("themeBox");
         var snoozeLength = getValueText("alarmSnoozeLength");
+        var siteToken = getStringValue("siteToken");
         console.log(themeList);
         console.log(uLSaved, lSaved, hSaved, uHSaved);
         //double check that they're all actual 
@@ -263,8 +279,9 @@ function saveFunction() {
                 if (returnVal != false) {
                     chrome.storage.local.set({
                         siteUrl: returnVal
-                    }, function() {
+                    }, function () {
                         console.log("SAVED SITE URL!");
+                        console.log(returnVal);
                         chrome.storage.local.set({
                             alarmValues: [
                                 [uLSaved, uLCheckbox],
@@ -272,22 +289,26 @@ function saveFunction() {
                                 [hSaved, hCheckbox],
                                 [uHSaved, uHCheckbox]
                             ]
-                        }, function() {
+                        }, function () {
                             console.log('SAVED DATA!');
                             chrome.storage.local.set({
                                 snoozeMinutes: snoozeLength
-                            }, function() {
-                            	chrome.storage.local.set({colors:themeList},function(){
-                                	//once saved, force reload.
-	                                chrome.extension.getBackgroundPage().webRequest(function() {
-	                                    //it is done reloading, force reload settings page!
-	                                    checkBSvariables();
-	                                });
+                            }, function () {
+                                chrome.storage.local.set({colors: themeList}, function () {
+                                    chrome.storage.local.set({
+                                        siteToken: siteToken
+                                    }, function () {
+                                        //once saved, force reload.
+                                        chrome.extension.getBackgroundPage().webRequest(function () {
+                                            //it is done reloading, force reload settings page!
+                                            checkBSvariables();
+                                        });
+                                    });
                                 });
                             });
                         });
                     });
-                } else {
+                }else {
                     alertFunc("ERROR: Invalid Site URL.");
                 }
             });

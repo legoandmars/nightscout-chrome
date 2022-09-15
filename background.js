@@ -567,7 +567,7 @@ function returnCurrentBG(data, notif, returnDate, unitType) {
             }
         }
     }
-};
+}
 
 function parseData(response, callbackFunc) {
     if (callbackFunc) {
@@ -578,7 +578,8 @@ function parseData(response, callbackFunc) {
 }
 
 function manipulateURL(urlObj,count) {
-    var siteUrlBase = Object.values(urlObj)[0];
+    var siteUrlBase = urlObj['siteUrl'];
+    var siteTokenBase = urlObj['siteToken'];
     //check if it starts with https/http and manipulate accordingly
     if (siteUrlBase.startsWith("https://")) {
         //it starts with https/http, we should be good.
@@ -597,13 +598,16 @@ function manipulateURL(urlObj,count) {
         siteUrlBase = siteUrlBase + "/";
     }
     siteUrlBase = siteUrlBase + 'api/v1/entries.json?count='+count;
-    //console.log("URL IS "+siteUrlBase); 
+    siteUrlBase = siteUrlBase + '&token=' + siteTokenBase
+    console.log("URL IS "+siteUrlBase);
+    console.log("TOKEN IS " + siteTokenBase)
     //return url with correct values.
     return siteUrlBase;
 }
 
 function manipulateProfileURL(urlObj) {
-    var siteUrlBase = Object.values(urlObj)[0];
+    var siteUrlBase = urlObj['siteUrl'];
+    var siteTokenBase = urlObj['siteToken'];
     //console.log(siteUrlBase);
     //check if it starts with https/http and manipulate accordingly
     if (siteUrlBase.startsWith("https://")) {
@@ -623,6 +627,7 @@ function manipulateProfileURL(urlObj) {
         siteUrlBase = siteUrlBase + "/";
     }
     siteUrlBase = siteUrlBase + 'api/v1/status.json';
+    siteUrlBase = siteUrlBase + '?token=' + siteTokenBase
     //console.log("URL IS "+siteUrlBase); 
     //return url with correct values.
     return siteUrlBase;
@@ -783,7 +788,7 @@ function profileWebRequest(profileURL, callbackFunctionWeb) {
 
 function webRequest(callbackFunc,fullChart) {
     //we need a couple of variables. first of all, get the site URL.
-    chrome.storage.local.get(['siteUrl'], function(siteData) {
+    chrome.storage.local.get(['siteUrl', 'siteToken'], function(siteData) {
         var siteUrlBase
         if(fullChart == true){
           siteUrlBase = manipulateURL(siteData,289);
